@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Promaths Coding Bootcamp Registrations</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'dark-blue': '#1a237e',
+                        'medium-blue': '#283593',
+                        'light-blue': '#303f9f',
+                        'accent': '#536dfe',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-dark-blue shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="text-2xl font-bold text-white">
+                    Promaths <span class="text-accent">Admin</span>
+                </div>
+                <div class="text-white">
+                    <a href="/" class="hover:text-accent transition-colors duration-200">Back to Main Site</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-dark-blue mb-2">Bootcamp Registrations</h1>
+            <p class="text-gray-600">View all student registrations for the Promaths Coding Bootcamp</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-accent">
+                <div class="text-2xl font-bold text-dark-blue" id="totalRegistrations">0</div>
+                <div class="text-gray-600">Total Registrations</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+                <div class="text-2xl font-bold text-dark-blue" id="consentedCount">0</div>
+                <div class="text-gray-600">Consented to Program</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+                <div class="text-2xl font-bold text-dark-blue" id="laptopUsers">0</div>
+                <div class="text-gray-600">Using Laptops</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
+                <div class="text-2xl font-bold text-dark-blue" id="reliableInternet">0</div>
+                <div class="text-gray-600">Reliable Internet</div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 class="text-xl font-semibold text-dark-blue">Registration Data</h2>
+                    <p class="text-gray-600">All submitted applications</p>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="refreshData()" class="bg-accent hover:bg-light-blue text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Refresh
+                    </button>
+                    <button onclick="exportToCSV()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Export CSV
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Registrations Table -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student Info</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Background</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Technical</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Registration Date</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="registrationsTable">
+                        <!-- Data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Loading State -->
+            <div id="loadingState" class="p-8 text-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto"></div>
+                <p class="text-gray-600 mt-4">Loading registrations...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden p-8 text-center">
+                <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No registrations yet</h3>
+                <p class="text-gray-600">When students register, their information will appear here.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allRegistrations = [];
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadRegistrations();
+        });
+
+        async function loadRegistrations() {
+            try {
+                showLoading();
+                const response = await fetch('/api/registrations');
+                const result = await response.json();
+                
+                if (result.success) {
+                    allRegistrations = result.data;
+                    displayRegistrations();
+                    updateStats();
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                console.error('Error loading registrations:', error);
+                showError('Failed to load registrations');
+            }
+        }
+
+        function displayRegistrations() {
+            const tableBody = document.getElementById('registrationsTable');
+            const loadingState = document.getElementById('loadingState');
+            const emptyState = document.getElementById('emptyState');
+
+            if (allRegistrations.length === 0) {
+                loadingState.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                tableBody.innerHTML = '';
+                return;
+            }
+
+            loadingState.classList.add('hidden');
+            emptyState.classList.add('hidden');
+
+            tableBody.innerHTML = allRegistrations.map(registration => `
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${registration.name} ${registration.surname}</div>
+                        <div class="text-sm text-gray-500">${registration.studentNumber}</div>
+                        <div class="text-sm text-gray-500">${registration.yearOfStudy}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${registration.email}</div>
+                        <div class="text-sm text-gray-500">${registration.whatsapp}</div>
+                        <div class="text-xs text-accent font-medium mt-1">${registration.promathsMember}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm text-gray-900">
+                            <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full 
+                                ${getSkillLevelColor(registration.skillLevel)}">
+                                ${registration.skillLevel}
+                            </span>
+                        </div>
+                        <div class="text-sm text-gray-500 mt-1">
+                            <span class="inline-block px-2 py-1 text-xs rounded-full 
+                                ${getSessionColor(registration.attendOnlineSessions)}">
+                                ${registration.attendOnlineSessions}
+                            </span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">
+                            <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full 
+                                ${getDeviceColor(registration.device)}">
+                                ${registration.device}
+                            </span>
+                        </div>
+                        <div class="text-sm text-gray-500 mt-1">
+                            Internet: <span class="font-medium ${registration.reliableInternet === 'Yes' ? 'text-green-600' : 'text-red-600'}">
+                                ${registration.reliableInternet}
+                            </span>
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            Consent: <span class="font-medium ${registration.consent === 'Yes' ? 'text-green-600' : 'text-red-600'}">
+                                ${registration.consent}
+                            </span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${new Date(registration.registrationDate).toLocaleDateString()}
+                        <div class="text-xs text-gray-400">
+                            ${new Date(registration.registrationDate).toLocaleTimeString()}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateStats() {
+            document.getElementById('totalRegistrations').textContent = allRegistrations.length;
+            document.getElementById('consentedCount').textContent = allRegistrations.filter(r => r.consent === 'Yes').length;
+            document.getElementById('laptopUsers').textContent = allRegistrations.filter(r => r.device === 'Laptop').length;
+            document.getElementById('reliableInternet').textContent = allRegistrations.filter(r => r.reliableInternet === 'Yes').length;
+        }
+
+        function getSkillLevelColor(level) {
+            const colors = {
+                'Never coded before': 'bg-blue-100 text-blue-800',
+                'Have basic coding skills (C++, Python, JS, Java, HTML etc)': 'bg-green-100 text-green-800',
+                'I have built small projects before': 'bg-purple-100 text-purple-800',
+                'Dont have any idea what coding even is': 'bg-red-100 text-red-800'
+            };
+            return colors[level] || 'bg-gray-100 text-gray-800';
+        }
+
+        function getSessionColor(session) {
+            const colors = {
+                'Yes': 'bg-green-100 text-green-800',
+                'No - data problems': 'bg-red-100 text-red-800',
+                'No - other reasons': 'bg-orange-100 text-orange-800'
+            };
+            return colors[session] || 'bg-gray-100 text-gray-800';
+        }
+
+        function getDeviceColor(device) {
+            const colors = {
+                'Laptop': 'bg-blue-100 text-blue-800',
+                'Phone': 'bg-purple-100 text-purple-800',
+                'Tablet': 'bg-pink-100 text-pink-800'
+            };
+            return colors[device] || 'bg-gray-100 text-gray-800';
+        }
+
+        function showLoading() {
+            document.getElementById('loadingState').classList.remove('hidden');
+            document.getElementById('emptyState').classList.add('hidden');
+        }
+
+        function showError(message) {
+            const tableBody = document.getElementById('registrationsTable');
+            const loadingState = document.getElementById('loadingState');
+            
+            loadingState.classList.add('hidden');
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="px-6 py-8 text-center">
+                        <div class="text-red-600">
+                            <svg class="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <p class="text-lg font-medium">${message}</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+
+        function refreshData() {
+            loadRegistrations();
+        }
+
+        function exportToCSV() {
+            if (allRegistrations.length === 0) {
+                alert('No data to export');
+                return;
+            }
+
+            const headers = ['Name', 'Surname', 'Student Number', 'Year of Study', 'Email', 'WhatsApp', 
+                           'Promaths Member', 'Skill Level', 'Online Sessions', 'Device', 'Reliable Internet', 'Consent', 'Registration Date'];
+            
+            const csvData = allRegistrations.map(reg => [
+                reg.name,
+                reg.surname,
+                reg.studentNumber,
+                reg.yearOfStudy,
+                reg.email,
+                reg.whatsapp,
+                reg.promathsMember,
+                reg.skillLevel,
+                reg.attendOnlineSessions,
+                reg.device,
+                reg.reliableInternet,
+                reg.consent,
+                new Date(reg.registrationDate).toLocaleString()
+            ]);
+
+            const csvContent = [headers, ...csvData]
+                .map(row => row.map(field => `"${field}"`).join(','))
+                .join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `promaths-registrations-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
