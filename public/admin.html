@@ -335,33 +335,67 @@
             loadRegistrations();
         });
 
+        // // Tab Navigation
+        // function showSection(sectionName) {
+        //     // Hide all sections
+        //     document.getElementById('registrationsSection').classList.add('hidden');
+        //     document.getElementById('resourcesSection').classList.add('hidden');
+        //     document.getElementById('lessonsSection').classList.add('hidden');
+        //     document.getElementById('submissionsSection').classList.add('hidden');
+
+        //     // Remove active state from all tabs
+        //     document.getElementById('registrationsTab').classList.remove('border-accent', 'text-accent');
+        //     document.getElementById('resourcesTab').classList.remove('border-accent', 'text-accent');
+        //     document.getElementById('lessonsTab').classList.remove('border-accent', 'text-accent');
+        //     document.getElementById('submissionsTab').classList.remove('border-accent', 'text-accent');
+
+        //     // Show selected section and activate tab
+        //     document.getElementById(sectionName + 'Section').classList.remove('hidden');
+        //     document.getElementById(sectionName + 'Tab').classList.add('border-accent', 'text-accent');
+
+        //     // Load data for the section
+        //     if (sectionName === 'resources') {
+        //         loadResources();
+        //     } else if (sectionName === 'lessons') {
+        //         loadLessons();
+        //     } else if (sectionName === 'submissions') {
+        //         loadSubmissions();
+        //     }
+        // }
+
+
         // Tab Navigation
-        function showSection(sectionName) {
-            // Hide all sections
-            document.getElementById('registrationsSection').classList.add('hidden');
-            document.getElementById('resourcesSection').classList.add('hidden');
-            document.getElementById('lessonsSection').classList.add('hidden');
-            document.getElementById('submissionsSection').classList.add('hidden');
+async function showSection(sectionName) {
+    // Hide all sections
+    document.getElementById('registrationsSection').classList.add('hidden');
+    document.getElementById('resourcesSection').classList.add('hidden');
+    document.getElementById('lessonsSection').classList.add('hidden');
+    document.getElementById('submissionsSection').classList.add('hidden');
 
-            // Remove active state from all tabs
-            document.getElementById('registrationsTab').classList.remove('border-accent', 'text-accent');
-            document.getElementById('resourcesTab').classList.remove('border-accent', 'text-accent');
-            document.getElementById('lessonsTab').classList.remove('border-accent', 'text-accent');
-            document.getElementById('submissionsTab').classList.remove('border-accent', 'text-accent');
+    // Remove active state from all tabs
+    document.getElementById('registrationsTab').classList.remove('border-accent', 'text-accent');
+    document.getElementById('resourcesTab').classList.remove('border-accent', 'text-accent');
+    document.getElementById('lessonsTab').classList.remove('border-accent', 'text-accent');
+    document.getElementById('submissionsTab').classList.remove('border-accent', 'text-accent');
 
-            // Show selected section and activate tab
-            document.getElementById(sectionName + 'Section').classList.remove('hidden');
-            document.getElementById(sectionName + 'Tab').classList.add('border-accent', 'text-accent');
+    // Show selected section and activate tab
+    document.getElementById(sectionName + 'Section').classList.remove('hidden');
+    document.getElementById(sectionName + 'Tab').classList.add('border-accent', 'text-accent');
 
-            // Load data for the section
-            if (sectionName === 'resources') {
-                loadResources();
-            } else if (sectionName === 'lessons') {
-                loadLessons();
-            } else if (sectionName === 'submissions') {
-                loadSubmissions();
-            }
+    // Load data for the section
+    if (sectionName === 'resources') {
+        await loadResources();
+    } else if (sectionName === 'lessons') {
+        await loadLessons();
+    } else if (sectionName === 'submissions') {
+        // First load lessons to populate the filter dropdown
+        if (lessons.length === 0) {
+            await loadLessons();
         }
+        // Then load submissions
+        await loadSubmissions();
+    }
+}
 
         // Resources Management
         document.getElementById('resourceForm').addEventListener('submit', async function(e) {
