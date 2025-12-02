@@ -357,7 +357,7 @@ app.delete('/api/lessons/:id', async (req, res) => {
 app.post('/api/submissions', async (req, res) => {
     try {
         const { studentName, studentEmail, lessonId, projectLink } = req.body;
-        
+
         if (!studentName || !studentEmail || !lessonId || !projectLink) {
             return res.status(400).json({
                 success: false,
@@ -374,7 +374,27 @@ app.post('/api/submissions', async (req, res) => {
             });
         }
 
-        const submission = new Submission({
+        // Check if submission already exists for this student+lesson
+        let submission = await Submission.findOne({
+            studentEmail,
+            lessonId
+        });
+
+        if (submission) {
+            // Update existing submission
+            submission.projectLink = projectLink;
+            submission.studentName = studentName; // in case they change name spelling
+            await submission.save();
+
+            return res.status(200).json({
+                success: true,
+                message: 'Submission updated successfully',
+                data: submission
+            });
+        }
+
+        // Create new submission
+        submission = new Submission({
             studentName,
             studentEmail,
             lessonId,
@@ -388,8 +408,9 @@ app.post('/api/submissions', async (req, res) => {
             message: 'Project submitted successfully',
             data: submission
         });
+
     } catch (error) {
-        console.error('Submission creation error:', error);
+        console.error('Submission creation/update error:', error);
         res.status(500).json({
             success: false,
             message: 'Failed to submit project',
@@ -397,6 +418,7 @@ app.post('/api/submissions', async (req, res) => {
         });
     }
 });
+
 
 app.get('/api/submissions', async (req, res) => {
     try {
@@ -553,6 +575,41 @@ app.post('/api/auth/verify', async (req, res) => {
         });
     }
 });
+
+
+// Cleanup: Keep only latest submission per student per lesson
+async function cleanupSubmissions() {
+    try {
+        // Get all submissions sorted newest → oldest
+        const submissions = await Submission.find().sort({ createdAt: -1 });
+
+        const seen = new Set(); 
+        const toDelete = [];
+
+        for (const sub of submissions) {
+            const key = `${sub.studentEmail}-${sub.lessonId}`;
+
+            if (seen.has(key)) {
+                // Already saw a newer submission → delete this one
+                toDelete.push(sub._id);
+            } else {
+                // First time seeing this pair → keep it
+                seen.add(key);
+            }
+        }
+
+        if (toDelete.length > 0) {
+            await Submission.deleteMany({ _id: { $in: toDelete } });
+        }
+
+        console.log(`Cleanup complete. Deleted ${toDelete.length} old submissions.`);
+    } catch (err) {
+        console.error("Cleanup error:", err);
+    }
+}
+
+//cleanupSubmissions();
+
 
 
 app.listen(PORT, () => {
