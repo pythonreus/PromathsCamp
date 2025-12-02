@@ -457,45 +457,79 @@
         let lessons = [];
 
         // Auth state observer
+        // firebase.auth().onAuthStateChanged(async (user) => {
+        //     if (user) {
+        //         // User is signed in
+        //         currentUser = user;
+
+        //         // Call your new endpoint to verify/sync with your database
+        //         const response = await fetch('/api/auth/verify', {
+        //             method: 'POST',
+        //             headers: {
+        //                 'Content-Type': 'application/json',
+        //             },
+        //             body: JSON.stringify({
+        //                 firebaseUid: user.uid,
+        //                 email: user.email,
+        //                 displayName: user.displayName,
+        //                 photoURL: user.photoURL
+        //             })
+        //         });
+                
+        //         const result = await response.json();
+        //         if (result.success) {
+        //             // User is now synced with your database
+        //             showUserSection(user);
+        //             loadResources();
+        //             loadLessons();
+        //         }else{
+        //             currentUser = null;
+        //             showGuestSection();
+
+        //         }
+
+        //         //showUserSection(user);
+                
+        //     } else {
+        //         // User is signed out
+        //         currentUser = null;
+        //         showGuestSection();
+        //     }
+        // });
+
         firebase.auth().onAuthStateChanged(async (user) => {
-            if (user) {
-                // User is signed in
-                currentUser = user;
+    if (user) {
+        currentUser = user;
 
-                // Call your new endpoint to verify/sync with your database
-                const response = await fetch('/api/auth/verify', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        firebaseUid: user.uid,
-                        email: user.email,
-                        displayName: user.displayName,
-                        photoURL: user.photoURL
-                    })
-                });
-                
-                const result = await response.json();
-                if (result.success) {
-                    // User is now synced with your database
-                    showUserSection(user);
-                    loadResources();
-                    loadLessons();
-                }else{
-                    currentUser = null;
-                    showGuestSection();
-
-                }
-
-                //showUserSection(user);
-                
-            } else {
-                // User is signed out
-                currentUser = null;
-                showGuestSection();
-            }
+        // Call your new endpoint to verify/sync with your database
+        const response = await fetch('/api/auth/verify', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                firebaseUid: user.uid,
+                email: user.email,
+                displayName: user.displayName,
+                photoURL: user.photoURL
+            })
         });
+        
+        const result = await response.json();
+        if (result.success) {
+            showUserSection(user);
+            loadResources();
+            loadLessons(); // This will now also load submissions
+        } else {
+            currentUser = null;
+            showGuestSection();
+        }
+    } else {
+        currentUser = null;
+        userSubmissions = []; // Clear submissions when user logs out
+        showGuestSection();
+    }
+});
 
 
        
@@ -714,26 +748,159 @@
         }
 
         // Load Lessons from API
+        // async function loadLessons() {
+        //     try {
+        //         showLessonsLoading();
+                
+        //         const response = await fetch('/api/lessons');
+        //         const result = await response.json();
+                
+        //         if (result.success) {
+        //             lessons = result.data.filter(lesson => lesson.isActive);
+        //             displayLessons();
+        //         } else {
+        //             throw new Error(result.message);
+        //         }
+        //     } catch (error) {
+        //         console.error('Error loading lessons:', error);
+        //         showLessonsEmpty();
+        //         showNotification('Failed to load lessons', 'error');
+        //     }
+        // }
+
+        // new addition
+        // Load Lessons from API
+         // Add this global variable at the top with other variables
+        let userSubmissions = [];
         async function loadLessons() {
             try {
                 showLessonsLoading();
                 
-                const response = await fetch('/api/lessons');
-                const result = await response.json();
+                // Fetch lessons
+                const lessonsResponse = await fetch('/api/lessons');
+                const lessonsResult = await lessonsResponse.json();
                 
-                if (result.success) {
-                    lessons = result.data.filter(lesson => lesson.isActive);
+                if (lessonsResult.success) {
+                    lessons = lessonsResult.data.filter(lesson => lesson.isActive);
+                    
+                    // Fetch user's submissions if logged in
+                    if (currentUser) {
+                        await loadUserSubmissions();
+                    }
+                    
                     displayLessons();
                 } else {
-                    throw new Error(result.message);
+                    throw new Error(lessonsResult.message);
                 }
-            } catch (error) {
-                console.error('Error loading lessons:', error);
-                showLessonsEmpty();
-                showNotification('Failed to load lessons', 'error');
+                } catch (error) {
+                    console.error('Error loading lessons:', error);
+                    showLessonsEmpty();
+                    showNotification('Failed to load lessons', 'error');
+                }
             }
-        }
 
+            // Load user's submissions
+            async function loadUserSubmissions() {
+                try {
+                    const response = await fetch('/api/submissions');
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        // Store submissions for the current user
+                        userSubmissions = result.data.filter(submission => 
+                            submission.studentEmail === currentUser.email
+                        );
+                    }
+                } catch (error) {
+                    console.error('Error loading submissions:', error);
+                }
+            }
+
+   
+
+
+        // end
+
+        // function displayLessons() {
+        //     const lessonsContainer = document.getElementById('lessonsContainer');
+        //     const loadingState = document.getElementById('lessonsLoading');
+        //     const emptyState = document.getElementById('lessonsEmpty');
+
+        //     loadingState.classList.add('hidden');
+
+        //     if (lessons.length === 0) {
+        //         emptyState.classList.remove('hidden');
+        //         lessonsContainer.classList.add('hidden');
+        //         return;
+        //     }
+
+        //     emptyState.classList.add('hidden');
+        //     lessonsContainer.classList.remove('hidden');
+
+        //     // Create lesson cards
+        //     lessonsContainer.innerHTML = lessons.map((lesson, index) => `
+        //         <div class="bg-gray-50 rounded-xl shadow-lg p-8 border-l-4 border-accent hover-lift transition-all duration-300">
+        //             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+        //                 <div>
+        //                     <h3 class="text-2xl font-bold text-dark-blue mb-2">${lesson.title}</h3>
+        //                     <p class="text-gray-600">Published: ${new Date(lesson.createdAt).toLocaleDateString()}</p>
+        //                     ${lesson.dueDate ? `
+        //                         <p class="text-gray-600 mt-1">
+        //                             <i class="fas fa-calendar-alt mr-2"></i>
+        //                             Due: ${new Date(lesson.dueDate).toLocaleDateString()}
+        //                         </p>
+        //                     ` : ''}
+        //                 </div>
+        //                 <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold mt-2 md:mt-0">
+        //                     Active
+        //                 </span>
+        //             </div>
+
+        //             <!-- Lesson Notes -->
+        //             <div class="mb-6">
+        //                 <h4 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
+        //                     <i class="fas fa-sticky-note text-accent mr-2"></i>Lesson Notes
+        //                 </h4>
+        //                 <div class="bg-white p-4 rounded-lg border">
+        //                     <div class="text-gray-700 whitespace-pre-wrap">${lesson.content}</div>
+        //                 </div>
+        //             </div>
+
+        //             <!-- Project Assignment -->
+        //             <div class="mb-6">
+        //                 <h4 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
+        //                     <i class="fas fa-tasks text-accent mr-2"></i>Project: ${lesson.projectTitle}
+        //                 </h4>
+        //                 <div class="bg-white p-4 rounded-lg border">
+        //                     <div class="text-gray-700 whitespace-pre-wrap">${lesson.projectInstructions}</div>
+        //                 </div>
+        //             </div>
+
+        //             <!-- Project Submission -->
+        //             <div>
+        //                 <h4 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
+        //                     <i class="fas fa-paper-plane text-accent mr-2"></i>Submit Your Project
+        //                 </h4>
+        //                 <div class="bg-white p-4 rounded-lg border">
+        //                     <p class="text-gray-600 mb-3">Paste the link to your GitHub repository or live demo:</p>
+        //                     <div class="flex flex-col sm:flex-row gap-3">
+        //                         <input type="url" 
+        //                             id="projectLink-${lesson._id}"
+        //                             placeholder="https://github.com/your-username/project" 
+        //                             class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent">
+        //                         <button onclick="submitProject('${lesson._id}')" 
+        //                             class="bg-accent hover:bg-light-blue text-white px-6 py-2 rounded-lg transition-all duration-200 font-semibold">
+        //                             Submit Project
+        //                         </button>
+        //                     </div>
+        //                     <p class="text-sm text-gray-500 mt-2">Make sure your repository is public so we can review your code.</p>
+        //                 </div>
+        //             </div>
+        //         </div>
+        //     `).join('');
+        // }
+
+        // new addiiton
         function displayLessons() {
             const lessonsContainer = document.getElementById('lessonsContainer');
             const loadingState = document.getElementById('lessonsLoading');
@@ -751,45 +918,142 @@
             lessonsContainer.classList.remove('hidden');
 
             // Create lesson cards
-            lessonsContainer.innerHTML = lessons.map((lesson, index) => `
-                <div class="bg-gray-50 rounded-xl shadow-lg p-8 border-l-4 border-accent hover-lift transition-all duration-300">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-                        <div>
-                            <h3 class="text-2xl font-bold text-dark-blue mb-2">${lesson.title}</h3>
-                            <p class="text-gray-600">Published: ${new Date(lesson.createdAt).toLocaleDateString()}</p>
-                            ${lesson.dueDate ? `
-                                <p class="text-gray-600 mt-1">
-                                    <i class="fas fa-calendar-alt mr-2"></i>
-                                    Due: ${new Date(lesson.dueDate).toLocaleDateString()}
-                                </p>
+            lessonsContainer.innerHTML = lessons.map((lesson, index) => {
+                // Check if user has submitted for this lesson
+                const userSubmission = userSubmissions.find(sub => 
+                    sub.lessonId && (sub.lessonId._id === lesson._id || sub.lessonId === lesson._id)
+                );
+                
+                return `
+                    <div class="bg-gray-50 rounded-xl shadow-lg p-8 border-l-4 border-accent hover-lift transition-all duration-300">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                            <div>
+                                <h3 class="text-2xl font-bold text-dark-blue mb-2">${lesson.title}</h3>
+                                <p class="text-gray-600">Published: ${new Date(lesson.createdAt).toLocaleDateString()}</p>
+                                ${lesson.dueDate ? `
+                                    <p class="text-gray-600 mt-1">
+                                        <i class="fas fa-calendar-alt mr-2"></i>
+                                        Due: ${new Date(lesson.dueDate).toLocaleDateString()}
+                                    </p>
+                                ` : ''}
+                            </div>
+                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold mt-2 md:mt-0">
+                                Active
+                            </span>
+                        </div>
+
+                        <!-- Lesson Notes -->
+                        <div class="mb-6">
+                            <h4 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
+                                <i class="fas fa-sticky-note text-accent mr-2"></i>Lesson Notes
+                            </h4>
+                            <div class="bg-white p-4 rounded-lg border">
+                                <div class="text-gray-700 whitespace-pre-wrap">${lesson.content}</div>
+                            </div>
+                        </div>
+
+                        <!-- Project Assignment -->
+                        <div class="mb-6">
+                            <h4 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
+                                <i class="fas fa-tasks text-accent mr-2"></i>Project: ${lesson.projectTitle}
+                            </h4>
+                            <div class="bg-white p-4 rounded-lg border">
+                                <div class="text-gray-700 whitespace-pre-wrap">${lesson.projectInstructions}</div>
+                            </div>
+                        </div>
+
+                        <!-- Submission Status or Submission Form -->
+                        ${renderSubmissionSection(lesson, userSubmission)}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Helper function to render submission section
+        function renderSubmissionSection(lesson, submission) {
+            if (!currentUser) {
+                return `
+                    <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                        <p class="text-yellow-700">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            You must be logged in to submit a project
+                        </p>
+                    </div>
+                `;
+            }
+            
+            if (submission) {
+                // User has submitted - show status
+                const status = submission.status || 'submitted';
+                const statusColors = {
+                    'submitted': 'bg-blue-100 text-blue-800',
+                    'reviewed': 'bg-yellow-100 text-yellow-800',
+                    'approved': 'bg-green-100 text-green-800',
+                    'rejected': 'bg-red-100 text-red-800'
+                };
+                
+                const statusText = {
+                    'submitted': 'Submitted - Pending Review',
+                    'reviewed': 'Under Review',
+                    'approved': 'Approved ✓',
+                    'rejected': 'Needs Revision'
+                };
+                
+                return `
+                    <div>
+                        <h4 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
+                            <i class="fas fa-paper-plane text-accent mr-2"></i>Your Submission Status
+                        </h4>
+                        <div class="bg-white p-6 rounded-lg border">
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+                                <div>
+                                    <h5 class="font-semibold text-gray-700">Project Link:</h5>
+                                    <a href="${submission.projectLink}" target="_blank" 
+                                    class="text-accent hover:underline break-all">
+                                        ${submission.projectLink}
+                                    </a>
+                                    <p class="text-sm text-gray-500 mt-1">
+                                        Submitted: ${new Date(submission.submittedAt).toLocaleString()}
+                                    </p>
+                                </div>
+                                <span class="inline-flex px-3 py-1 rounded-full text-sm font-semibold mt-2 sm:mt-0 ${statusColors[status]}">
+                                    ${statusText[status]}
+                                </span>
+                            </div>
+                            
+                            <!-- Resubmission form (show if rejected or if they want to update) -->
+                            ${status === 'rejected' ? `
+                                <div class="mt-4 pt-4 border-t">
+                                    <p class="text-red-600 mb-3">
+                                        <i class="fas fa-exclamation-circle mr-2"></i>
+                                        Please revise your project and resubmit.
+                                    </p>
+                                    <div class="flex flex-col sm:flex-row gap-3">
+                                        <input type="url" 
+                                            id="resubmitLink-${lesson._id}"
+                                            placeholder="https://github.com/your-username/updated-project" 
+                                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent">
+                                        <button onclick="resubmitProject('${lesson._id}', '${submission._id}')" 
+                                            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-all duration-200 font-semibold">
+                                            Resubmit
+                                        </button>
+                                    </div>
+                                </div>
                             ` : ''}
-                        </div>
-                        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold mt-2 md:mt-0">
-                            Active
-                        </span>
-                    </div>
-
-                    <!-- Lesson Notes -->
-                    <div class="mb-6">
-                        <h4 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
-                            <i class="fas fa-sticky-note text-accent mr-2"></i>Lesson Notes
-                        </h4>
-                        <div class="bg-white p-4 rounded-lg border">
-                            <div class="text-gray-700 whitespace-pre-wrap">${lesson.content}</div>
+                            
+                            <!-- Update submission button for all statuses -->
+                            <div class="mt-4">
+                                <button onclick="showUpdateForm('${lesson._id}', '${submission.projectLink}')" 
+                                    class="text-accent hover:text-light-blue font-medium text-sm">
+                                    <i class="fas fa-edit mr-1"></i>Update your submission
+                                </button>
+                            </div>
                         </div>
                     </div>
-
-                    <!-- Project Assignment -->
-                    <div class="mb-6">
-                        <h4 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
-                            <i class="fas fa-tasks text-accent mr-2"></i>Project: ${lesson.projectTitle}
-                        </h4>
-                        <div class="bg-white p-4 rounded-lg border">
-                            <div class="text-gray-700 whitespace-pre-wrap">${lesson.projectInstructions}</div>
-                        </div>
-                    </div>
-
-                    <!-- Project Submission -->
+                `;
+            } else {
+                // User hasn't submitted - show submission form
+                return `
                     <div>
                         <h4 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
                             <i class="fas fa-paper-plane text-accent mr-2"></i>Submit Your Project
@@ -809,9 +1073,12 @@
                             <p class="text-sm text-gray-500 mt-2">Make sure your repository is public so we can review your code.</p>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }
         }
+
+
+        // end of addition
 
         function showLessonsLoading() {
             document.getElementById('lessonsLoading').classList.remove('hidden');
@@ -826,48 +1093,225 @@
         }
 
         // Project Submission
-        async function submitProject(lessonId) {
-            const projectLink = document.getElementById(`projectLink-${lessonId}`).value.trim();
+        // async function submitProject(lessonId) {
+        //     const projectLink = document.getElementById(`projectLink-${lessonId}`).value.trim();
             
-            if (!projectLink) {
-                showNotification('Please enter a project link', 'error');
-                return;
-            }
+        //     if (!projectLink) {
+        //         showNotification('Please enter a project link', 'error');
+        //         return;
+        //     }
 
-            if (!currentUser) {
-                showNotification('You must be logged in to submit a project', 'error');
-                return;
-            }
+        //     if (!currentUser) {
+        //         showNotification('You must be logged in to submit a project', 'error');
+        //         return;
+        //     }
 
-            try {
-                const submissionData = {
-                    studentName: currentUser.displayName,
-                    studentEmail: currentUser.email,
-                    lessonId: lessonId,
-                    projectLink: projectLink
-                };
+        //     try {
+        //         const submissionData = {
+        //             studentName: currentUser.displayName,
+        //             studentEmail: currentUser.email,
+        //             lessonId: lessonId,
+        //             projectLink: projectLink
+        //         };
 
-                const response = await fetch('/api/submissions', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(submissionData)
-                });
+        //         const response = await fetch('/api/submissions', {
+        //             method: 'POST',
+        //             headers: {
+        //                 'Content-Type': 'application/json',
+        //             },
+        //             body: JSON.stringify(submissionData)
+        //         });
 
-                const result = await response.json();
+        //         const result = await response.json();
 
-                if (result.success) {
-                    showNotification('Project submitted successfully!', 'success');
-                    document.getElementById(`projectLink-${lessonId}`).value = '';
-                } else {
-                    throw new Error(result.message);
-                }
-            } catch (error) {
-                console.error('Error submitting project:', error);
-                showNotification('Failed to submit project: ' + error.message, 'error');
-            }
+        //         if (result.success) {
+        //             showNotification('Project submitted successfully!', 'success');
+        //             document.getElementById(`projectLink-${lessonId}`).value = '';
+        //         } else {
+        //             throw new Error(result.message);
+        //         }
+        //     } catch (error) {
+        //         console.error('Error submitting project:', error);
+        //         showNotification('Failed to submit project: ' + error.message, 'error');
+        //     }
+        // }
+
+        // Project Submission
+async function submitProject(lessonId) {
+    const projectLink = document.getElementById(`projectLink-${lessonId}`).value.trim();
+    
+    if (!projectLink) {
+        showNotification('Please enter a project link', 'error');
+        return;
+    }
+
+    if (!currentUser) {
+        showNotification('You must be logged in to submit a project', 'error');
+        return;
+    }
+
+    try {
+        const submissionData = {
+            studentName: currentUser.displayName,
+            studentEmail: currentUser.email,
+            lessonId: lessonId,
+            projectLink: projectLink
+        };
+
+        const response = await fetch('/api/submissions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(submissionData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showNotification('Project submitted successfully!', 'success');
+            document.getElementById(`projectLink-${lessonId}`).value = '';
+            // Reload lessons to show the new submission status
+            await loadLessons();
+        } else {
+            throw new Error(result.message);
         }
+    } catch (error) {
+        console.error('Error submitting project:', error);
+        showNotification('Failed to submit project: ' + error.message, 'error');
+    }
+}
+
+        // new addiition
+        // Resubmit project (for rejected submissions)
+async function resubmitProject(lessonId, submissionId) {
+    const projectLink = document.getElementById(`resubmitLink-${lessonId}`).value.trim();
+    
+    if (!projectLink) {
+        showNotification('Please enter a project link', 'error');
+        return;
+    }
+
+    try {
+        const submissionData = {
+            studentName: currentUser.displayName,
+            studentEmail: currentUser.email,
+            lessonId: lessonId,
+            projectLink: projectLink
+        };
+
+        const response = await fetch('/api/submissions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(submissionData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showNotification('Project resubmitted successfully!', 'success');
+            // Reload lessons to show updated status
+            await loadLessons();
+        } else {
+            throw new Error(result.message);
+        }
+    } catch (error) {
+        console.error('Error resubmitting project:', error);
+        showNotification('Failed to resubmit project: ' + error.message, 'error');
+    }
+}
+
+// Show update form for existing submission
+function showUpdateForm(lessonId, currentLink) {
+    // Create a modal or inline form to update the submission
+    const formHtml = `
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div class="bg-white rounded-xl shadow-xl p-6 max-w-md w-full">
+                <h3 class="text-xl font-bold text-dark-blue mb-4">Update Your Submission</h3>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">New Project Link</label>
+                    <input type="url" 
+                        id="updateLink-${lessonId}"
+                        value="${currentLink}"
+                        placeholder="https://github.com/your-username/project" 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent">
+                </div>
+                <div class="flex justify-end gap-3">
+                    <button onclick="closeUpdateForm()" 
+                        class="px-4 py-2 text-gray-600 hover:text-gray-800">
+                        Cancel
+                    </button>
+                    <button onclick="updateProject('${lessonId}')" 
+                        class="bg-accent hover:bg-light-blue text-white px-6 py-2 rounded-lg font-semibold">
+                        Update
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove any existing modal
+    const existingModal = document.getElementById('updateModal');
+    if (existingModal) existingModal.remove();
+    
+    // Create and show new modal
+    const modal = document.createElement('div');
+    modal.id = 'updateModal';
+    modal.innerHTML = formHtml;
+    document.body.appendChild(modal);
+}
+
+// Close the update form modal
+function closeUpdateForm() {
+    const modal = document.getElementById('updateModal');
+    if (modal) modal.remove();
+}
+
+// Update existing submission
+async function updateProject(lessonId) {
+    const projectLink = document.getElementById(`updateLink-${lessonId}`).value.trim();
+    
+    if (!projectLink) {
+        showNotification('Please enter a project link', 'error');
+        return;
+    }
+
+    try {
+        const submissionData = {
+            studentName: currentUser.displayName,
+            studentEmail: currentUser.email,
+            lessonId: lessonId,
+            projectLink: projectLink
+        };
+
+        const response = await fetch('/api/submissions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(submissionData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showNotification('Project updated successfully!', 'success');
+            closeUpdateForm();
+            // Reload lessons to show updated status
+            await loadLessons();
+        } else {
+            throw new Error(result.message);
+        }
+    } catch (error) {
+        console.error('Error updating project:', error);
+        showNotification('Failed to update project: ' + error.message, 'error');
+    }
+}
+
+
+        // end of addition
 
         // Notification system
         function showNotification(message, type = 'info') {
