@@ -363,6 +363,19 @@
         //     }
         // }
 
+        // new addition
+        // Enhanced escapeHtml function
+function escapeHtml(text) {
+    if (!text) return '';
+    // Replace only the most dangerous characters
+    return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
 
         // Tab Navigation
 async function showSection(sectionName) {
@@ -578,63 +591,173 @@ async function showSection(sectionName) {
             }
         }
 
+        // function displayLessons() {
+        //     const lessonsList = document.getElementById('lessonsList');
+        //     const emptyState = document.getElementById('lessonsEmpty');
+        //     const loadingState = document.getElementById('lessonsLoading');
+
+        //     loadingState.classList.add('hidden');
+
+        //     if (lessons.length === 0) {
+        //         lessonsList.innerHTML = '';
+        //         emptyState.classList.remove('hidden');
+        //         return;
+        //     }
+
+        //     emptyState.classList.add('hidden');
+        //     lessonsList.innerHTML = lessons.map(lesson => `
+        //         <div class="p-6">
+        //             <div class="flex justify-between items-start mb-4">
+        //                 <div class="flex-1">
+        //                     <h3 class="text-lg font-semibold text-dark-blue mb-2">${lesson.title}</h3>
+        //                     <div class="flex items-center gap-4 text-sm text-gray-600 mb-2">
+        //                         <span class="flex items-center gap-1">
+        //                             <i class="fas fa-tasks"></i>
+        //                             ${lesson.projectTitle}
+        //                         </span>
+        //                         ${lesson.dueDate ? `<span class="flex items-center gap-1">
+        //                             <i class="fas fa-calendar"></i>
+        //                             Due: ${new Date(lesson.dueDate).toLocaleDateString()}
+        //                         </span>` : ''}
+        //                         <span class="flex items-center gap-1 ${lesson.isActive ? 'text-green-600' : 'text-gray-400'}">
+        //                             <i class="fas fa-circle"></i>
+        //                             ${lesson.isActive ? 'Active' : 'Inactive'}
+        //                         </span>
+        //                     </div>
+        //                 </div>
+        //                 <div class="flex gap-2">
+        //                     <button onclick="toggleLesson('${lesson._id}')" class="text-${lesson.isActive ? 'orange' : 'green'}-600 hover:text-${lesson.isActive ? 'orange' : 'green'}-800">
+        //                         <i class="fas fa-${lesson.isActive ? 'pause' : 'play'}"></i>
+        //                     </button>
+        //                     <button onclick="deleteLesson('${lesson._id}')" class="text-red-600 hover:text-red-800">
+        //                         <i class="fas fa-trash"></i>
+        //                     </button>
+        //                 </div>
+        //             </div>
+        //             <div class="grid md:grid-cols-2 gap-4">
+        //                 <div>
+        //                     <h4 class="font-semibold text-gray-700 mb-2">Lesson Content:</h4>
+        //                     <div class="bg-gray-50 p-3 rounded text-sm whitespace-pre-wrap">${lesson.content}</div>
+        //                 </div>
+        //                 <div>
+        //                     <h4 class="font-semibold text-gray-700 mb-2">Project Instructions:</h4>
+        //                     <div class="bg-gray-50 p-3 rounded text-sm whitespace-pre-wrap">${lesson.projectInstructions}</div>
+        //                 </div>
+        //             </div>
+        //             <p class="text-sm text-gray-500 mt-3">Created: ${new Date(lesson.createdAt).toLocaleDateString()}</p>
+        //         </div>
+        //     `).join('');
+        // }
+
         function displayLessons() {
-            const lessonsList = document.getElementById('lessonsList');
-            const emptyState = document.getElementById('lessonsEmpty');
-            const loadingState = document.getElementById('lessonsLoading');
+    const lessonsList = document.getElementById('lessonsList');
+    const emptyState = document.getElementById('lessonsEmpty');
+    const loadingState = document.getElementById('lessonsLoading');
 
-            loadingState.classList.add('hidden');
+    loadingState.classList.add('hidden');
 
-            if (lessons.length === 0) {
-                lessonsList.innerHTML = '';
-                emptyState.classList.remove('hidden');
-                return;
-            }
+    console.log('Displaying lessons:', lessons.length, 'lessons found');
+    
+    if (lessons.length === 0) {
+        lessonsList.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+    }
 
-            emptyState.classList.add('hidden');
-            lessonsList.innerHTML = lessons.map(lesson => `
-                <div class="p-6">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex-1">
-                            <h3 class="text-lg font-semibold text-dark-blue mb-2">${lesson.title}</h3>
-                            <div class="flex items-center gap-4 text-sm text-gray-600 mb-2">
-                                <span class="flex items-center gap-1">
-                                    <i class="fas fa-tasks"></i>
-                                    ${lesson.projectTitle}
-                                </span>
-                                ${lesson.dueDate ? `<span class="flex items-center gap-1">
-                                    <i class="fas fa-calendar"></i>
-                                    Due: ${new Date(lesson.dueDate).toLocaleDateString()}
-                                </span>` : ''}
-                                <span class="flex items-center gap-1 ${lesson.isActive ? 'text-green-600' : 'text-gray-400'}">
-                                    <i class="fas fa-circle"></i>
-                                    ${lesson.isActive ? 'Active' : 'Inactive'}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="toggleLesson('${lesson._id}')" class="text-${lesson.isActive ? 'orange' : 'green'}-600 hover:text-${lesson.isActive ? 'orange' : 'green'}-800">
-                                <i class="fas fa-${lesson.isActive ? 'pause' : 'play'}"></i>
-                            </button>
-                            <button onclick="deleteLesson('${lesson._id}')" class="text-red-600 hover:text-red-800">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <h4 class="font-semibold text-gray-700 mb-2">Lesson Content:</h4>
-                            <div class="bg-gray-50 p-3 rounded text-sm whitespace-pre-wrap">${lesson.content}</div>
-                        </div>
-                        <div>
-                            <h4 class="font-semibold text-gray-700 mb-2">Project Instructions:</h4>
-                            <div class="bg-gray-50 p-3 rounded text-sm whitespace-pre-wrap">${lesson.projectInstructions}</div>
-                        </div>
-                    </div>
-                    <p class="text-sm text-gray-500 mt-3">Created: ${new Date(lesson.createdAt).toLocaleDateString()}</p>
-                </div>
-            `).join('');
+    emptyState.classList.add('hidden');
+    
+    // Clear the list completely
+    lessonsList.innerHTML = '';
+    
+    // Create each lesson as a separate div element
+    lessons.forEach((lesson, index) => {
+        console.log(`Processing lesson ${index}: ${lesson.title}`);
+        
+        // Create main lesson container
+        const lessonDiv = document.createElement('div');
+        lessonDiv.className = 'p-6 border-b border-gray-200';
+        if (index === lessons.length - 1) {
+            lessonDiv.classList.add('border-b-0');
         }
+        
+        // Create toggle button color classes
+        const toggleColor = lesson.isActive ? 'orange' : 'green';
+        const toggleIcon = lesson.isActive ? 'pause' : 'play';
+        
+        // Create the HTML structure piece by piece
+        lessonDiv.innerHTML = `
+            <div class="flex justify-between items-start mb-4">
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-dark-blue mb-2">${escapeHtml(lesson.title || 'Untitled Lesson')}</h3>
+                    <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-2">
+                        <span class="flex items-center gap-1">
+                            <i class="fas fa-tasks"></i>
+                            ${escapeHtml(lesson.projectTitle || 'No project title')}
+                        </span>
+                        ${lesson.dueDate ? 
+                            `<span class="flex items-center gap-1">
+                                <i class="fas fa-calendar"></i>
+                                Due: ${new Date(lesson.dueDate).toLocaleDateString()}
+                            </span>` : 
+                            ''
+                        }
+                        <span class="flex items-center gap-1 ${lesson.isActive ? 'text-green-600' : 'text-gray-400'}">
+                            <i class="fas fa-circle text-xs"></i>
+                            ${lesson.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="toggleLesson('${lesson._id}')" class="text-${toggleColor}-600 hover:text-${toggleColor}-800 p-2 rounded hover:bg-gray-100">
+                        <i class="fas fa-${toggleIcon}"></i>
+                    </button>
+                    <button onclick="deleteLesson('${lesson._id}')" class="text-red-600 hover:text-red-800 p-2 rounded hover:bg-gray-100">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <h4 class="font-semibold text-gray-700 mb-2">Lesson Content:</h4>
+                    <div class="lesson-content bg-gray-50 p-3 rounded text-sm">
+                        <!-- Content will be inserted below -->
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-700 mb-2">Project Instructions:</h4>
+                    <div class="project-instructions bg-gray-50 p-3 rounded text-sm">
+                        <!-- Instructions will be inserted below -->
+                    </div>
+                </div>
+            </div>
+            <p class="text-sm text-gray-500 mt-3">Created: ${new Date(lesson.createdAt).toLocaleDateString()}</p>
+        `;
+        
+        // Now manually insert the content and instructions to prevent HTML issues
+        const contentDiv = lessonDiv.querySelector('.lesson-content');
+        const instructionsDiv = lessonDiv.querySelector('.project-instructions');
+        
+        // Use textContent for safety - preserves line breaks but prevents HTML injection
+        if (lesson.content) {
+            contentDiv.textContent = lesson.content;
+        } else {
+            contentDiv.textContent = 'No content available';
+        }
+        
+        if (lesson.projectInstructions) {
+            instructionsDiv.textContent = lesson.projectInstructions;
+        } else {
+            instructionsDiv.textContent = 'No instructions available';
+        }
+        
+        // Add CSS for overflow with safe handling
+        contentDiv.style.cssText = 'white-space: pre-wrap; word-break: break-word; max-height: 160px; overflow-y: auto;';
+        instructionsDiv.style.cssText = 'white-space: pre-wrap; word-break: break-word; max-height: 160px; overflow-y: auto;';
+        
+        // Append the lesson to the list
+        lessonsList.appendChild(lessonDiv);
+    });
+}
 
         function showLessonsLoading() {
             document.getElementById('lessonsLoading').classList.remove('hidden');

@@ -901,73 +901,189 @@
         // }
 
         // new addiiton
-        function displayLessons() {
-            const lessonsContainer = document.getElementById('lessonsContainer');
-            const loadingState = document.getElementById('lessonsLoading');
-            const emptyState = document.getElementById('lessonsEmpty');
+        // function displayLessons() {
+        //     const lessonsContainer = document.getElementById('lessonsContainer');
+        //     const loadingState = document.getElementById('lessonsLoading');
+        //     const emptyState = document.getElementById('lessonsEmpty');
 
-            loadingState.classList.add('hidden');
+        //     loadingState.classList.add('hidden');
 
-            if (lessons.length === 0) {
-                emptyState.classList.remove('hidden');
-                lessonsContainer.classList.add('hidden');
-                return;
-            }
+        //     if (lessons.length === 0) {
+        //         emptyState.classList.remove('hidden');
+        //         lessonsContainer.classList.add('hidden');
+        //         return;
+        //     }
 
-            emptyState.classList.add('hidden');
-            lessonsContainer.classList.remove('hidden');
+        //     emptyState.classList.add('hidden');
+        //     lessonsContainer.classList.remove('hidden');
 
-            // Create lesson cards
-            lessonsContainer.innerHTML = lessons.map((lesson, index) => {
-                // Check if user has submitted for this lesson
-                const userSubmission = userSubmissions.find(sub => 
-                    sub.lessonId && (sub.lessonId._id === lesson._id || sub.lessonId === lesson._id)
-                );
+        //     // Create lesson cards
+        //     lessonsContainer.innerHTML = lessons.map((lesson, index) => {
+        //         // Check if user has submitted for this lesson
+        //         const userSubmission = userSubmissions.find(sub => 
+        //             sub.lessonId && (sub.lessonId._id === lesson._id || sub.lessonId === lesson._id)
+        //         );
                 
-                return `
-                    <div class="bg-gray-50 rounded-xl shadow-lg p-8 border-l-4 border-accent hover-lift transition-all duration-300">
-                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-                            <div>
-                                <h3 class="text-2xl font-bold text-dark-blue mb-2">${lesson.title}</h3>
-                                <p class="text-gray-600">Published: ${new Date(lesson.createdAt).toLocaleDateString()}</p>
-                                ${lesson.dueDate ? `
-                                    <p class="text-gray-600 mt-1">
-                                        <i class="fas fa-calendar-alt mr-2"></i>
-                                        Due: ${new Date(lesson.dueDate).toLocaleDateString()}
-                                    </p>
-                                ` : ''}
-                            </div>
-                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold mt-2 md:mt-0">
-                                Active
-                            </span>
-                        </div>
+        //         return `
+        //             <div class="bg-gray-50 rounded-xl shadow-lg p-8 border-l-4 border-accent hover-lift transition-all duration-300">
+        //                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+        //                     <div>
+        //                         <h3 class="text-2xl font-bold text-dark-blue mb-2">${lesson.title}</h3>
+        //                         <p class="text-gray-600">Published: ${new Date(lesson.createdAt).toLocaleDateString()}</p>
+        //                         ${lesson.dueDate ? `
+        //                             <p class="text-gray-600 mt-1">
+        //                                 <i class="fas fa-calendar-alt mr-2"></i>
+        //                                 Due: ${new Date(lesson.dueDate).toLocaleDateString()}
+        //                             </p>
+        //                         ` : ''}
+        //                     </div>
+        //                     <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold mt-2 md:mt-0">
+        //                         Active
+        //                     </span>
+        //                 </div>
 
-                        <!-- Lesson Notes -->
-                        <div class="mb-6">
-                            <h4 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
-                                <i class="fas fa-sticky-note text-accent mr-2"></i>Lesson Notes
-                            </h4>
-                            <div class="bg-white p-4 rounded-lg border">
-                                <div class="text-gray-700 whitespace-pre-wrap">${lesson.content}</div>
-                            </div>
-                        </div>
+        //                 <!-- Lesson Notes -->
+        //                 <div class="mb-6">
+        //                     <h4 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
+        //                         <i class="fas fa-sticky-note text-accent mr-2"></i>Lesson Notes
+        //                     </h4>
+        //                     <div class="bg-white p-4 rounded-lg border">
+        //                         <div class="text-gray-700 whitespace-pre-wrap">${lesson.content}</div>
+        //                     </div>
+        //                 </div>
 
-                        <!-- Project Assignment -->
-                        <div class="mb-6">
-                            <h4 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
-                                <i class="fas fa-tasks text-accent mr-2"></i>Project: ${lesson.projectTitle}
-                            </h4>
-                            <div class="bg-white p-4 rounded-lg border">
-                                <div class="text-gray-700 whitespace-pre-wrap">${lesson.projectInstructions}</div>
-                            </div>
-                        </div>
+        //                 <!-- Project Assignment -->
+        //                 <div class="mb-6">
+        //                     <h4 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
+        //                         <i class="fas fa-tasks text-accent mr-2"></i>Project: ${lesson.projectTitle}
+        //                     </h4>
+        //                     <div class="bg-white p-4 rounded-lg border">
+        //                         <div class="text-gray-700 whitespace-pre-wrap">${lesson.projectInstructions}</div>
+        //                     </div>
+        //                 </div>
 
-                        <!-- Submission Status or Submission Form -->
-                        ${renderSubmissionSection(lesson, userSubmission)}
-                    </div>
-                `;
-            }).join('');
+        //                 <!-- Submission Status or Submission Form -->
+        //                 ${renderSubmissionSection(lesson, userSubmission)}
+        //             </div>
+        //         `;
+        //     }).join('');
+        // }
+
+
+
+        // Helper function to safely escape HTML
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function displayLessons() {
+    const lessonsContainer = document.getElementById('lessonsContainer');
+    const loadingState = document.getElementById('lessonsLoading');
+    const emptyState = document.getElementById('lessonsEmpty');
+
+    loadingState.classList.add('hidden');
+
+    if (lessons.length === 0) {
+        emptyState.classList.remove('hidden');
+        lessonsContainer.classList.add('hidden');
+        return;
+    }
+
+    emptyState.classList.add('hidden');
+    lessonsContainer.classList.remove('hidden');
+
+    // Clear the container completely first
+    lessonsContainer.innerHTML = '';
+    
+    console.log(`Displaying ${lessons.length} lessons`);
+
+    // Create each lesson as a separate element and append individually
+    lessons.forEach((lesson, index) => {
+        console.log(`Creating lesson ${index}: ${lesson.title}`);
+        
+        // Check if user has submitted for this lesson
+        const userSubmission = userSubmissions.find(sub => 
+            sub.lessonId && (sub.lessonId._id === lesson._id || sub.lessonId === lesson._id)
+        );
+        
+        // Create lesson div
+        const lessonDiv = document.createElement('div');
+        lessonDiv.className = 'bg-gray-50 rounded-xl shadow-lg p-8 border-l-4 border-accent hover-lift transition-all duration-300 mb-8';
+        
+        // Safely escape all text content
+        const escapedTitle = escapeHtml(lesson.title || 'Untitled Lesson');
+        const escapedContent = escapeHtml(lesson.content || 'No content available');
+        const escapedProjectTitle = escapeHtml(lesson.projectTitle || 'No project title');
+        const escapedProjectInstructions = escapeHtml(lesson.projectInstructions || 'No instructions available');
+        
+        // Build HTML with escaped content
+        lessonDiv.innerHTML = `
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                <div>
+                    <h3 class="text-2xl font-bold text-dark-blue mb-2">${escapedTitle}</h3>
+                    <p class="text-gray-600">Published: ${new Date(lesson.createdAt).toLocaleDateString()}</p>
+                    ${lesson.dueDate ? `
+                        <p class="text-gray-600 mt-1">
+                            <i class="fas fa-calendar-alt mr-2"></i>
+                            Due: ${new Date(lesson.dueDate).toLocaleDateString()}
+                        </p>
+                    ` : ''}
+                </div>
+                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold mt-2 md:mt-0">
+                    Active
+                </span>
+            </div>
+
+            <!-- Lesson Notes -->
+            <div class="mb-6">
+                <h4 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
+                    <i class="fas fa-sticky-note text-accent mr-2"></i>Lesson Notes
+                </h4>
+                <div class="bg-white p-4 rounded-lg border">
+                    <div class="text-gray-700 whitespace-pre-wrap" id="content-${lesson._id}"></div>
+                </div>
+            </div>
+
+            <!-- Project Assignment -->
+            <div class="mb-6">
+                <h4 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
+                    <i class="fas fa-tasks text-accent mr-2"></i>Project: ${escapedProjectTitle}
+                </h4>
+                <div class="bg-white p-4 rounded-lg border">
+                    <div class="text-gray-700 whitespace-pre-wrap" id="instructions-${lesson._id}"></div>
+                </div>
+            </div>
+
+            <!-- Submission Status or Submission Form -->
+            <div id="submission-${lesson._id}"></div>
+        `;
+        
+        // Now safely set the text content using textContent (not innerHTML)
+        const contentDiv = lessonDiv.querySelector(`#content-${lesson._id}`);
+        const instructionsDiv = lessonDiv.querySelector(`#instructions-${lesson._id}`);
+        const submissionDiv = lessonDiv.querySelector(`#submission-${lesson._id}`);
+        
+        if (contentDiv) {
+            contentDiv.textContent = lesson.content || 'No content available';
         }
+        
+        if (instructionsDiv) {
+            instructionsDiv.textContent = lesson.projectInstructions || 'No instructions available';
+        }
+        
+        if (submissionDiv) {
+            submissionDiv.innerHTML = renderSubmissionSection(lesson, userSubmission);
+        }
+        
+        // Append to container
+        lessonsContainer.appendChild(lessonDiv);
+        
+        console.log(`Lesson ${index} added successfully`);
+    });
+}
 
         // Helper function to render submission section
         function renderSubmissionSection(lesson, submission) {
