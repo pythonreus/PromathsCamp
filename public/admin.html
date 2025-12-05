@@ -20,6 +20,19 @@
             }
         }
     </script>
+
+    <style>
+    .star-rating i {
+        margin-right: 1px;
+    }
+    .text-overflow-ellipsis {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+    }
+</style>
 </head>
 <body class="bg-gray-50 min-h-screen">
     <!-- Header -->
@@ -55,6 +68,11 @@
                 <button id="submissionsTab" onclick="showSection('submissions')" 
                     class="px-6 py-4 font-semibold text-gray-600 hover:text-gray-800 transition-colors duration-200">
                     <i class="fas fa-tasks mr-2"></i>Submissions
+                </button>
+                <!-- Add this button to the navigation tabs section -->
+                <button id="surveysTab" onclick="showSection('surveys')" 
+                    class="px-6 py-4 font-semibold text-gray-600 hover:text-gray-800 transition-colors duration-200">
+                    <i class="fas fa-chart-bar mr-2"></i>Survey Results
                 </button>
             </div>
         </div>
@@ -321,6 +339,162 @@
                 </div>
             </div>
         </div>
+
+
+        <!-- Survey Results Section -->
+<div id="surveysSection" class="hidden">
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold text-dark-blue mb-2">Survey Results</h1>
+        <p class="text-gray-600">View student feedback and program evaluation</p>
+    </div>
+
+    <!-- Survey Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-accent">
+            <div class="text-2xl font-bold text-dark-blue" id="totalSurveys">0</div>
+            <div class="text-gray-600">Total Surveys</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+            <div class="text-2xl font-bold text-dark-blue" id="averageRating">0.0</div>
+            <div class="text-gray-600">Average Rating</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+            <div class="text-2xl font-bold text-dark-blue" id="learnedYes">0%</div>
+            <div class="text-gray-600">Learned Something</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
+            <div class="text-2xl font-bold text-dark-blue" id="continueYes">0%</div>
+            <div class="text-gray-600">Want to Continue</div>
+        </div>
+    </div>
+
+    <!-- Detailed Statistics -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Chart 1: Rating Distribution -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-dark-blue mb-4">Experience Rating Distribution</h3>
+            <div class="h-64 flex items-end justify-center space-x-2" id="ratingChart">
+                <!-- Chart bars will be inserted here -->
+            </div>
+        </div>
+
+        <!-- Chart 2: Helpfulness -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-dark-blue mb-4">Exercise Helpfulness</h3>
+            <div class="space-y-4" id="helpfulnessChart">
+                <!-- Chart bars will be inserted here -->
+            </div>
+        </div>
+
+        <!-- Chart 3: Results Observed -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-dark-blue mb-4">Results Observed</h3>
+            <div class="space-y-4" id="resultsChart">
+                <!-- Chart bars will be inserted here -->
+            </div>
+        </div>
+
+        <!-- Chart 4: Continue Next Year -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-dark-blue mb-4">Continue Program Next Year</h3>
+            <div class="flex items-center justify-center" id="continueChart">
+                <!-- Pie chart will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Survey Data Table -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+        <div class="p-6 border-b">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 class="text-xl font-semibold text-dark-blue">Survey Responses</h2>
+                    <p class="text-gray-600">Detailed survey responses from students</p>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="refreshSurveys()" class="bg-accent hover:bg-light-blue text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                    <button onclick="exportSurveysCSV()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2">
+                        <i class="fas fa-file-csv"></i>
+                        Export CSV
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ratings & Feedback</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Challenges & Suggestions</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200" id="surveysTable">
+                    <!-- Survey data will be populated here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Loading State -->
+        <div id="surveysLoading" class="p-8 text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto"></div>
+            <p class="text-gray-600 mt-4">Loading survey results...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div id="surveysEmpty" class="hidden p-8 text-center">
+            <i class="fas fa-chart-bar text-gray-400 text-6xl mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No survey responses yet</h3>
+            <p class="text-gray-600">When students submit feedback, it will appear here.</p>
+        </div>
+    </div>
+
+    <!-- Text Analysis Section -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-2xl font-semibold text-dark-blue mb-6">Text Response Analysis</h2>
+        
+        <div class="grid md:grid-cols-3 gap-6">
+            <!-- Common Challenges -->
+            <div class="border rounded-lg p-4">
+                <h3 class="font-semibold text-dark-blue mb-3 flex items-center gap-2">
+                    <i class="fas fa-exclamation-triangle text-orange-500"></i>
+                    Common Challenges
+                </h3>
+                <div id="commonChallenges" class="space-y-2 text-sm text-gray-600">
+                    <!-- Common challenges will appear here -->
+                </div>
+            </div>
+
+            <!-- Improvement Suggestions -->
+            <div class="border rounded-lg p-4">
+                <h3 class="font-semibold text-dark-blue mb-3 flex items-center gap-2">
+                    <i class="fas fa-lightbulb text-yellow-500"></i>
+                    Top Suggestions
+                </h3>
+                <div id="topSuggestions" class="space-y-2 text-sm text-gray-600">
+                    <!-- Top suggestions will appear here -->
+                </div>
+            </div>
+
+            <!-- Help Requests -->
+            <div class="border rounded-lg p-4">
+                <h3 class="font-semibold text-dark-blue mb-3 flex items-center gap-2">
+                    <i class="fas fa-hands-helping text-blue-500"></i>
+                    Help Requests
+                </h3>
+                <div id="helpRequests" class="space-y-2 text-sm text-gray-600">
+                    <!-- Help requests will appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
     </div>
 
     <script>
@@ -329,6 +503,9 @@
         let resources = [];
         let lessons = [];
         let submissions = [];
+        // Add to existing data storage
+let surveys = [];
+let surveyStats = {};
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
@@ -378,18 +555,53 @@ function escapeHtml(text) {
 
 
         // Tab Navigation
+// async function showSection(sectionName) {
+//     // Hide all sections
+//     document.getElementById('registrationsSection').classList.add('hidden');
+//     document.getElementById('resourcesSection').classList.add('hidden');
+//     document.getElementById('lessonsSection').classList.add('hidden');
+//     document.getElementById('submissionsSection').classList.add('hidden');
+
+//     // Remove active state from all tabs
+//     document.getElementById('registrationsTab').classList.remove('border-accent', 'text-accent');
+//     document.getElementById('resourcesTab').classList.remove('border-accent', 'text-accent');
+//     document.getElementById('lessonsTab').classList.remove('border-accent', 'text-accent');
+//     document.getElementById('submissionsTab').classList.remove('border-accent', 'text-accent');
+
+//     // Show selected section and activate tab
+//     document.getElementById(sectionName + 'Section').classList.remove('hidden');
+//     document.getElementById(sectionName + 'Tab').classList.add('border-accent', 'text-accent');
+
+//     // Load data for the section
+//     if (sectionName === 'resources') {
+//         await loadResources();
+//     } else if (sectionName === 'lessons') {
+//         await loadLessons();
+//     } else if (sectionName === 'submissions') {
+//         // First load lessons to populate the filter dropdown
+//         if (lessons.length === 0) {
+//             await loadLessons();
+//         }
+//         // Then load submissions
+//         await loadSubmissions();
+//     }
+// }
+
+// Update showSection function
 async function showSection(sectionName) {
     // Hide all sections
     document.getElementById('registrationsSection').classList.add('hidden');
     document.getElementById('resourcesSection').classList.add('hidden');
     document.getElementById('lessonsSection').classList.add('hidden');
     document.getElementById('submissionsSection').classList.add('hidden');
+    document.getElementById('surveysSection').classList.add('hidden');
 
     // Remove active state from all tabs
     document.getElementById('registrationsTab').classList.remove('border-accent', 'text-accent');
     document.getElementById('resourcesTab').classList.remove('border-accent', 'text-accent');
     document.getElementById('lessonsTab').classList.remove('border-accent', 'text-accent');
     document.getElementById('submissionsTab').classList.remove('border-accent', 'text-accent');
+    document.getElementById('surveysTab').classList.remove('border-accent', 'text-accent');
 
     // Show selected section and activate tab
     document.getElementById(sectionName + 'Section').classList.remove('hidden');
@@ -401,12 +613,12 @@ async function showSection(sectionName) {
     } else if (sectionName === 'lessons') {
         await loadLessons();
     } else if (sectionName === 'submissions') {
-        // First load lessons to populate the filter dropdown
         if (lessons.length === 0) {
             await loadLessons();
         }
-        // Then load submissions
         await loadSubmissions();
+    } else if (sectionName === 'surveys') {
+        await loadSurveys();
     }
 }
 
@@ -1175,6 +1387,359 @@ async function showSection(sectionName) {
             a.click();
             window.URL.revokeObjectURL(url);
         }
+
+
+        // Survey Functions
+async function loadSurveys() {
+    try {
+        showSurveysLoading();
+        
+        // Load detailed surveys
+        const response = await fetch('/api/surveys');
+        const result = await response.json();
+        
+        if (result.success) {
+            surveys = result.data;
+            
+            // Load survey summary
+            const summaryResponse = await fetch('/api/surveys/summary');
+            const summaryResult = await summaryResponse.json();
+            
+            if (summaryResult.success) {
+                surveyStats = summaryResult.data;
+                displaySurveyStats();
+                displaySurveysTable();
+                analyzeTextResponses();
+            } else {
+                throw new Error('Failed to load survey summary');
+            }
+        } else {
+            throw new Error(result.message);
+        }
+    } catch (error) {
+        console.error('Error loading surveys:', error);
+        showNotification('Failed to load survey results', 'error');
+    }
+}
+
+function displaySurveyStats() {
+    // Update stat cards
+    document.getElementById('totalSurveys').textContent = surveyStats.totalSurveys || 0;
+    document.getElementById('averageRating').textContent = surveyStats.averageRating?.toFixed(1) || '0.0';
+    
+    // Calculate percentages
+    const learnedYes = surveyStats.learnedAnything?.['Yes'] || 0;
+    const learnedTotal = (surveyStats.learnedAnything?.['Yes'] || 0) + (surveyStats.learnedAnything?.['No'] || 0);
+    const learnedPercent = learnedTotal > 0 ? Math.round((learnedYes / learnedTotal) * 100) : 0;
+    document.getElementById('learnedYes').textContent = `${learnedPercent}%`;
+    
+    const continueYes = surveyStats.continueNextYear?.['Yes'] || 0;
+    const continueTotal = (surveyStats.continueNextYear?.['Yes'] || 0) + (surveyStats.continueNextYear?.['No'] || 0);
+    const continuePercent = continueTotal > 0 ? Math.round((continueYes / continueTotal) * 100) : 0;
+    document.getElementById('continueYes').textContent = `${continuePercent}%`;
+    
+    // Display charts
+    displayRatingChart();
+    displayHelpfulnessChart();
+    displayResultsChart();
+    displayContinueChart();
+}
+
+function displayRatingChart() {
+    const chartContainer = document.getElementById('ratingChart');
+    const ratingData = surveyStats.ratingDistribution || {};
+    const maxValue = Math.max(...Object.values(ratingData), 1);
+    
+    chartContainer.innerHTML = '';
+    
+    for (let i = 1; i <= 10; i++) {
+        const value = ratingData[i] || 0;
+        const height = maxValue > 0 ? (value / maxValue * 200) : 0;
+        
+        const bar = document.createElement('div');
+        bar.className = 'flex flex-col items-center';
+        bar.innerHTML = `
+            <div class="text-xs text-gray-500 mb-1">${i}</div>
+            <div class="w-6 bg-accent rounded-t transition-all duration-300 hover:bg-light-blue cursor-pointer group relative" 
+                 style="height: ${height}px">
+                <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                    ${value}
+                </div>
+            </div>
+        `;
+        chartContainer.appendChild(bar);
+    }
+}
+
+function displayHelpfulnessChart() {
+    const chartContainer = document.getElementById('helpfulnessChart');
+    const helpfulnessData = surveyStats.exercisesHelpfulness || {};
+    const total = Object.values(helpfulnessData).reduce((a, b) => a + b, 0) || 1;
+    
+    chartContainer.innerHTML = '';
+    
+    const categories = {
+        'Very helpful': 'bg-green-500',
+        'To some extent': 'bg-yellow-500',
+        'Not really': 'bg-red-500'
+    };
+    
+    for (const [category, color] of Object.entries(categories)) {
+        const value = helpfulnessData[category] || 0;
+        const percentage = Math.round((value / total) * 100);
+        
+        const bar = document.createElement('div');
+        bar.innerHTML = `
+            <div class="flex justify-between text-sm mb-1">
+                <span>${category}</span>
+                <span>${value} (${percentage}%)</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="${color} h-2 rounded-full transition-all duration-500" style="width: ${percentage}%"></div>
+            </div>
+        `;
+        chartContainer.appendChild(bar);
+    }
+}
+
+function displayResultsChart() {
+    const chartContainer = document.getElementById('resultsChart');
+    const resultsData = surveyStats.resultsObserved || {};
+    const total = Object.values(resultsData).reduce((a, b) => a + b, 0) || 1;
+    
+    chartContainer.innerHTML = '';
+    
+    const categories = {
+        'Big results': { color: 'bg-green-500', icon: 'fa-rocket' },
+        'Small results': { color: 'bg-yellow-500', icon: 'fa-chart-line' },
+        'No results': { color: 'bg-red-500', icon: 'fa-exclamation-circle' }
+    };
+    
+    for (const [category, data] of Object.entries(categories)) {
+        const value = resultsData[category] || 0;
+        const percentage = Math.round((value / total) * 100);
+        
+        const bar = document.createElement('div');
+        bar.innerHTML = `
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 ${data.color} rounded-full flex items-center justify-center">
+                    <i class="fas ${data.icon} text-white text-sm"></i>
+                </div>
+                <div class="flex-1">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span>${category}</span>
+                        <span>${value} (${percentage}%)</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="${data.color} h-2 rounded-full transition-all duration-500" style="width: ${percentage}%"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+        chartContainer.appendChild(bar);
+    }
+}
+
+function displayContinueChart() {
+    const chartContainer = document.getElementById('continueChart');
+    const continueData = surveyStats.continueNextYear || {};
+    const yes = continueData['Yes'] || 0;
+    const no = continueData['No'] || 0;
+    const total = yes + no || 1;
+    const yesPercent = Math.round((yes / total) * 100);
+    const noPercent = Math.round((no / total) * 100);
+    
+    chartContainer.innerHTML = `
+        <div class="relative w-40 h-40">
+            <div class="absolute inset-0 flex items-center justify-center">
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-dark-blue">${yesPercent}%</div>
+                    <div class="text-sm text-gray-600">Want to continue</div>
+                </div>
+            </div>
+            <svg class="w-full h-full transform -rotate-90">
+                <circle cx="80" cy="80" r="60" fill="none" stroke="#d1d5db" stroke-width="40"/>
+                <circle cx="80" cy="80" r="60" fill="none" stroke="#10b981" stroke-width="40" 
+                    stroke-dasharray="${2 * Math.PI * 60}" 
+                    stroke-dashoffset="${2 * Math.PI * 60 * (1 - yesPercent/100)}"/>
+            </svg>
+        </div>
+    `;
+}
+
+function displaySurveysTable() {
+    const tableBody = document.getElementById('surveysTable');
+    const loadingState = document.getElementById('surveysLoading');
+    const emptyState = document.getElementById('surveysEmpty');
+
+    loadingState.classList.add('hidden');
+
+    if (surveys.length === 0) {
+        tableBody.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+    }
+
+    emptyState.classList.add('hidden');
+    
+    tableBody.innerHTML = surveys.map(survey => `
+        <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4">
+                <div class="text-sm font-medium text-gray-900">${survey.studentName}</div>
+                <div class="text-sm text-gray-500">${survey.studentEmail}</div>
+            </td>
+            <td class="px-6 py-4">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="text-sm text-gray-900">Rating: </div>
+                    <div class="flex">
+                        ${Array(5).fill().map((_, i) => `
+                            <i class="fas fa-star ${i < Math.floor(survey.experienceRating/2) ? 'text-yellow-400' : 'text-gray-300'} text-sm"></i>
+                        `).join('')}
+                    </div>
+                    <span class="text-sm font-semibold text-dark-blue">${survey.experienceRating}/10</span>
+                </div>
+                <div class="text-xs text-gray-600">
+                    <span class="inline-block px-2 py-1 rounded-full ${survey.exercisesHelpfulness === 'Very helpful' ? 'bg-green-100 text-green-800' : 
+                        survey.exercisesHelpfulness === 'To some extent' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}">
+                        ${survey.exercisesHelpfulness}
+                    </span>
+                </div>
+            </td>
+            <td class="px-6 py-4">
+                <div class="space-y-1">
+                    <div class="text-sm">
+                        <span class="font-medium">Learned:</span>
+                        <span class="${survey.learnedAnything === 'Yes' ? 'text-green-600' : 'text-red-600'} ml-1">
+                            ${survey.learnedAnything}
+                        </span>
+                    </div>
+                    <div class="text-sm">
+                        <span class="font-medium">Results:</span>
+                        <span class="ml-1 ${survey.resultsObserved === 'Big results' ? 'text-green-600' : 
+                            survey.resultsObserved === 'Small results' ? 'text-yellow-600' : 'text-red-600'}">
+                            ${survey.resultsObserved}
+                        </span>
+                    </div>
+                    <div class="text-sm">
+                        <span class="font-medium">Continue:</span>
+                        <span class="${survey.continueNextYear === 'Yes' ? 'text-green-600' : 'text-red-600'} ml-1">
+                            ${survey.continueNextYear}
+                        </span>
+                    </div>
+                </div>
+            </td>
+            <td class="px-6 py-4">
+                <div class="space-y-2 text-sm text-gray-600">
+                    <div class="max-h-20 overflow-y-auto">
+                        <div class="font-medium text-xs text-gray-500 mb-1">Challenges:</div>
+                        ${survey.challengesFaced}
+                    </div>
+                    <div class="max-h-20 overflow-y-auto">
+                        <div class="font-medium text-xs text-gray-500 mb-1">Suggestions:</div>
+                        ${survey.improvementsSuggested}
+                    </div>
+                    <div class="max-h-20 overflow-y-auto">
+                        <div class="font-medium text-xs text-gray-500 mb-1">Help Needed:</div>
+                        ${survey.helpNeeded}
+                    </div>
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${new Date(survey.submissionDate).toLocaleDateString()}
+                <div class="text-xs text-gray-400">
+                    ${new Date(survey.submissionDate).toLocaleTimeString()}
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function analyzeTextResponses() {
+    const challengesDiv = document.getElementById('commonChallenges');
+    const suggestionsDiv = document.getElementById('topSuggestions');
+    const helpDiv = document.getElementById('helpRequests');
+    
+    // Extract common phrases from text responses
+    const challenges = [];
+    const suggestions = [];
+    const helpRequests = [];
+    
+    surveys.forEach(survey => {
+        // Simple analysis - you can make this more sophisticated
+        challenges.push(survey.challengesFaced.substring(0, 100) + '...');
+        suggestions.push(survey.improvementsSuggested.substring(0, 100) + '...');
+        helpRequests.push(survey.helpNeeded.substring(0, 100) + '...');
+    });
+    
+    // Display top 5 from each category
+    challengesDiv.innerHTML = challenges.slice(0, 5).map(text => `
+        <div class="border-l-2 border-orange-400 pl-3 py-1">
+            ${text}
+        </div>
+    `).join('');
+    
+    suggestionsDiv.innerHTML = suggestions.slice(0, 5).map(text => `
+        <div class="border-l-2 border-yellow-400 pl-3 py-1">
+            ${text}
+        </div>
+    `).join('');
+    
+    helpDiv.innerHTML = helpRequests.slice(0, 5).map(text => `
+        <div class="border-l-2 border-blue-400 pl-3 py-1">
+            ${text}
+        </div>
+    `).join('');
+}
+
+function showSurveysLoading() {
+    document.getElementById('surveysLoading').classList.remove('hidden');
+    document.getElementById('surveysEmpty').classList.add('hidden');
+}
+
+function refreshSurveys() {
+    loadSurveys();
+}
+
+function exportSurveysCSV() {
+    if (surveys.length === 0) {
+        alert('No survey data to export');
+        return;
+    }
+
+    const headers = [
+        'Student Name', 'Student Email', 'Learned Anything', 'Results Observed',
+        'Continue Next Year', 'Challenges Faced', 'Improvements Suggested',
+        'Help Needed', 'Exercises Helpfulness', 'Experience Rating',
+        'Additional Comments', 'Submission Date'
+    ];
+    
+    const csvData = surveys.map(survey => [
+        survey.studentName,
+        survey.studentEmail,
+        survey.learnedAnything,
+        survey.resultsObserved,
+        survey.continueNextYear,
+        `"${survey.challengesFaced.replace(/"/g, '""')}"`,
+        `"${survey.improvementsSuggested.replace(/"/g, '""')}"`,
+        `"${survey.helpNeeded.replace(/"/g, '""')}"`,
+        survey.exercisesHelpfulness,
+        survey.experienceRating,
+        survey.additionalComments ? `"${survey.additionalComments.replace(/"/g, '""')}"` : '',
+        new Date(survey.submissionDate).toLocaleString()
+    ]);
+
+    const csvContent = [headers, ...csvData]
+        .map(row => row.join(','))
+        .join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `promaths-surveys-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
     </script>
 </body>
 </html>

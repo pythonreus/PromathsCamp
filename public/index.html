@@ -108,6 +108,11 @@
             background-clip: text;
         }
 
+        /* Star rating styles */
+.star-rating i.active {
+    color: #ffc107; /* Yellow for active stars */
+}
+
         .floating-shapes {
             position: absolute;
             width: 100%;
@@ -364,6 +369,10 @@
                     <button id="lessonsTab" class="tab-button flex-1 py-3 px-6 rounded-md font-semibold transition-all duration-200 tab-inactive">
                         <i class="fas fa-book mr-2"></i>Lessons
                     </button>
+                    <!-- Add this to your navigation tabs section (after lessons tab) -->
+                    <button id="surveyTab" class="tab-button flex-1 py-3 px-6 rounded-md font-semibold transition-all duration-200 tab-inactive">
+                        <i class="fas fa-poll mr-2"></i>Survey
+                    </button>
                 </div>
             </div>
         </section>
@@ -423,6 +432,213 @@
                 </div>
             </div>
         </section>
+
+        <!-- Survey Section -->
+<section id="surveySection" class="py-16 bg-gray-50 hidden">
+    <div class="container mx-auto px-4 max-w-4xl">
+        <h2 class="text-3xl font-bold text-center text-dark-blue mb-12">
+            <i class="fas fa-poll text-accent mr-3"></i>Program Feedback Survey
+        </h2>
+
+        <!-- Already Submitted Message -->
+        <div id="alreadySubmitted" class="hidden">
+            <div class="bg-green-50 border border-green-200 rounded-xl p-8 text-center mb-8">
+                <i class="fas fa-check-circle text-green-500 text-5xl mb-4"></i>
+                <h3 class="text-2xl font-bold text-green-800 mb-2">Thank You!</h3>
+                <p class="text-green-700 mb-4">You have already submitted your feedback. We appreciate your input!</p>
+                <div class="bg-green-100 p-4 rounded-lg inline-block">
+                    <p class="text-green-800 font-medium">You submitted your survey on <span id="submissionDate"></span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Survey Form -->
+        <div id="surveyFormContainer" class="hidden">
+            <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <p class="text-gray-600 mb-6 text-center">
+                    Please take a few minutes to share your experience with the Promaths Coding Bootcamp. 
+                    Your feedback helps us improve the program for future students.
+                </p>
+
+                <form id="surveyForm" class="space-y-8">
+                    <!-- Question 1: Learned Anything -->
+                    <div class="border-b pb-6">
+                        <label class="block text-lg font-semibold text-dark-blue mb-4">
+                            1. Have you learned anything so far? *
+                        </label>
+                        <div class="space-y-3">
+                            <label class="flex items-center">
+                                <input type="radio" name="learnedAnything" value="Yes" required 
+                                    class="mr-3 h-5 w-5 text-accent focus:ring-accent">
+                                <span class="text-gray-700">Yes</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="learnedAnything" value="No" required 
+                                    class="mr-3 h-5 w-5 text-accent focus:ring-accent">
+                                <span class="text-gray-700">No</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Question 2: Results Observed -->
+                    <div class="border-b pb-6">
+                        <label class="block text-lg font-semibold text-dark-blue mb-4">
+                            2. Are you seeing results in this program? *
+                        </label>
+                        <div class="space-y-3">
+                            <label class="flex items-center">
+                                <input type="radio" name="resultsObserved" value="Big results" required 
+                                    class="mr-3 h-5 w-5 text-accent focus:ring-accent">
+                                <span class="text-gray-700">Big results</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="resultsObserved" value="Small results" required 
+                                    class="mr-3 h-5 w-5 text-accent focus:ring-accent">
+                                <span class="text-gray-700">Small results</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="resultsObserved" value="No results" required 
+                                    class="mr-3 h-5 w-5 text-accent focus:ring-accent">
+                                <span class="text-gray-700">No results</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Question 3: Continue Next Year -->
+                    <div class="border-b pb-6">
+                        <label class="block text-lg font-semibold text-dark-blue mb-4">
+                            3. Would you like to see this program continue to the next year? *
+                        </label>
+                        <div class="space-y-3">
+                            <label class="flex items-center">
+                                <input type="radio" name="continueNextYear" value="Yes" required 
+                                    class="mr-3 h-5 w-5 text-accent focus:ring-accent">
+                                <span class="text-gray-700">Yes</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="continueNextYear" value="No" required 
+                                    class="mr-3 h-5 w-5 text-accent focus:ring-accent">
+                                <span class="text-gray-700">No</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Question 4: Challenges Faced -->
+                    <div class="border-b pb-6">
+                        <label class="block text-lg font-semibold text-dark-blue mb-4">
+                            4. What challenges have you faced? *
+                        </label>
+                        <textarea name="challengesFaced" required rows="4"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent resize-none"
+                            placeholder="Please describe any challenges you've encountered during the program..."></textarea>
+                        <p class="text-sm text-gray-500 mt-2">Please be specific about any technical, time management, or learning challenges.</p>
+                    </div>
+
+                    <!-- Question 5: Improvements -->
+                    <div class="border-b pb-6">
+                        <label class="block text-lg font-semibold text-dark-blue mb-4">
+                            5. What can we do to improve as the program? *
+                        </label>
+                        <textarea name="improvementsSuggested" required rows="4"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent resize-none"
+                            placeholder="Your suggestions for program improvement..."></textarea>
+                        <p class="text-sm text-gray-500 mt-2">What changes would make the program better for future students?</p>
+                    </div>
+
+                    <!-- Question 6: Help Needed -->
+                    <div class="border-b pb-6">
+                        <label class="block text-lg font-semibold text-dark-blue mb-4">
+                            6. How would you like us to help you improve? *
+                        </label>
+                        <textarea name="helpNeeded" required rows="4"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent resize-none"
+                            placeholder="What additional support would help you succeed..."></textarea>
+                        <p class="text-sm text-gray-500 mt-2">Please specify any areas where you need more support or guidance.</p>
+                    </div>
+
+                    <!-- Question 7: Exercises Helpfulness -->
+                    <div class="border-b pb-6">
+                        <label class="block text-lg font-semibold text-dark-blue mb-4">
+                            7. Are the exercises helpful? *
+                        </label>
+                        <div class="space-y-3">
+                            <label class="flex items-center">
+                                <input type="radio" name="exercisesHelpfulness" value="Very helpful" required 
+                                    class="mr-3 h-5 w-5 text-accent focus:ring-accent">
+                                <span class="text-gray-700">Very helpful</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="exercisesHelpfulness" value="To some extent" required 
+                                    class="mr-3 h-5 w-5 text-accent focus:ring-accent">
+                                <span class="text-gray-700">To some extent</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="exercisesHelpfulness" value="Not really" required 
+                                    class="mr-3 h-5 w-5 text-accent focus:ring-accent">
+                                <span class="text-gray-700">Not really</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Question 8: Experience Rating -->
+                    <div class="pb-6">
+                        <label class="block text-lg font-semibold text-dark-blue mb-4">
+                            8. How would you rate your experience out of 10 so far? *
+                        </label>
+                        <div class="mb-6">
+                            <input type="range" name="experienceRating" min="1" max="10" value="5" required 
+                                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-accent"
+                                oninput="updateRatingValue(this.value)">
+                            <div class="flex justify-between mt-2">
+                                <span class="text-sm text-gray-500">1 - Poor</span>
+                                <div class="text-center">
+                                    <span id="ratingValue" class="text-2xl font-bold text-accent">5</span>
+                                    <span class="text-gray-600">/10</span>
+                                </div>
+                                <span class="text-sm text-gray-500">10 - Excellent</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Star Rating Visual -->
+                        <!-- Star Rating Visual -->
+                    <div class="flex justify-center mb-2" id="starRating">
+                        ${Array(10).fill().map((_, i) => `
+                            <i class="fas fa-star text-gray-300 text-xl mx-0.5 star-${i+1}"></i>
+                        `).join('')}
+                    </div>
+                    </div>
+
+                    <!-- Additional Comments -->
+                    <div>
+                        <label class="block text-lg font-semibold text-dark-blue mb-4">
+                            Additional Comments (Optional)
+                        </label>
+                        <textarea name="additionalComments" rows="3"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent resize-none"
+                            placeholder="Any other feedback or comments..."></textarea>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="pt-6 border-t">
+                        <button type="submit" id="submitSurveyBtn" 
+                            class="w-full bg-accent hover:bg-light-blue text-white font-bold py-4 px-6 rounded-lg transition-all duration-300 transform hover:scale-[1.02] focus:scale-[1.02]">
+                            <i class="fas fa-paper-plane mr-2"></i>Submit Survey
+                        </button>
+                        <p class="text-sm text-gray-500 text-center mt-4">
+                            * Required fields. You can only submit this survey once.
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Survey Loading State -->
+        <div id="surveyLoading" class="text-center py-12">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <p class="text-gray-600">Loading survey...</p>
+        </div>
+    </div>
+</section>
     </div>
 
     <!-- Footer -->
@@ -435,1059 +651,935 @@
         </div>
     </footer>
 
-    <!-- Firebase Configuration -->
     <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCiGkxTPBZGcnoLjYxmGIQgcoAIeKTlhlk",
-            authDomain: "promathsbootcamp.firebaseapp.com",
-            projectId: "promathsbootcamp",
-            storageBucket: "promathsbootcamp.firebasestorage.app",
-            messagingSenderId: "824154890090",
-            appId: "1:824154890090:web:253e7f9e53ec698d214f13",
-            measurementId: "G-CN437086VR"
-        };
+    // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyCiGkxTPBZGcnoLjYxmGIQgcoAIeKTlhlk",
+        authDomain: "promathsbootcamp.firebaseapp.com",
+        projectId: "promathsbootcamp",
+        storageBucket: "promathsbootcamp.firebasestorage.app",
+        messagingSenderId: "824154890090",
+        appId: "1:824154890090:web:253e7f9e53ec698d214f13",
+        measurementId: "G-CN437086VR"
+    };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
 
-        // Global variables
-        let currentUser = null;
-        let resources = [];
-        let lessons = [];
+    // Global variables
+    let currentUser = null;
+    let resources = [];
+    let lessons = [];
+    let userSubmissions = [];
+    let userHasSubmittedSurvey = false;
+    let existingSurvey = null;
 
-        // Auth state observer
-        // firebase.auth().onAuthStateChanged(async (user) => {
-        //     if (user) {
-        //         // User is signed in
-        //         currentUser = user;
+    // Auth state observer
+    firebase.auth().onAuthStateChanged(async (user) => {
+        if (user) {
+            currentUser = user;
 
-        //         // Call your new endpoint to verify/sync with your database
-        //         const response = await fetch('/api/auth/verify', {
-        //             method: 'POST',
-        //             headers: {
-        //                 'Content-Type': 'application/json',
-        //             },
-        //             body: JSON.stringify({
-        //                 firebaseUid: user.uid,
-        //                 email: user.email,
-        //                 displayName: user.displayName,
-        //                 photoURL: user.photoURL
-        //             })
-        //         });
-                
-        //         const result = await response.json();
-        //         if (result.success) {
-        //             // User is now synced with your database
-        //             showUserSection(user);
-        //             loadResources();
-        //             loadLessons();
-        //         }else{
-        //             currentUser = null;
-        //             showGuestSection();
-
-        //         }
-
-        //         //showUserSection(user);
-                
-        //     } else {
-        //         // User is signed out
-        //         currentUser = null;
-        //         showGuestSection();
-        //     }
-        // });
-
-        firebase.auth().onAuthStateChanged(async (user) => {
-    if (user) {
-        currentUser = user;
-
-        // Call your new endpoint to verify/sync with your database
-        const response = await fetch('/api/auth/verify', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                firebaseUid: user.uid,
-                email: user.email,
-                displayName: user.displayName,
-                photoURL: user.photoURL
-            })
-        });
-        
-        const result = await response.json();
-        if (result.success) {
-            showUserSection(user);
-            loadResources();
-            loadLessons(); // This will now also load submissions
+            // Call your new endpoint to verify/sync with your database
+            const response = await fetch('/api/auth/verify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    firebaseUid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName,
+                    photoURL: user.photoURL
+                })
+            });
+            
+            const result = await response.json();
+            if (result.success) {
+                showUserSection(user);
+                loadResources();
+                loadLessons();
+            } else {
+                currentUser = null;
+                showGuestSection();
+            }
         } else {
             currentUser = null;
+            userSubmissions = []; // Clear submissions when user logs out
             showGuestSection();
         }
-    } else {
-        currentUser = null;
-        userSubmissions = []; // Clear submissions when user logs out
-        showGuestSection();
-    }
-});
-
-
-       
-
-        function login() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            firebase.auth().signInWithPopup(provider)
-                .then((result) => {
-                    // Login successful
-                    console.log('User logged in:', result.user);
-                })
-                .catch((error) => {
-                    console.error('Login error:', error);
-                    showNotification('Login failed. Please try again.', 'error');
-                });
-        }
-
-        function logout() {
-            firebase.auth().signOut()
-                .then(() => {
-                    console.log('User logged out');
-                    showNotification('Logged out successfully', 'success');
-                })
-                .catch((error) => {
-                    console.error('Logout error:', error);
-                    showNotification('Logout failed', 'error');
-                });
-        }
-
-        // Update the showUserSection function to properly initialize tabs
-        function showUserSection(user) {
-            document.getElementById('guestSection').style.display = 'none';
-            document.getElementById('userSection').style.display = 'block';
-            document.getElementById('loginBtn').style.display = 'none';
-            document.getElementById('userInfo').style.display = 'flex';
-            
-            // Update user info
-            document.getElementById('userAvatar').src = user.photoURL;
-            document.getElementById('userName').textContent = user.displayName;
-            document.getElementById('welcomeName').textContent = user.displayName;
-            
-            // Set initial section states
-            document.getElementById('resourcesSection').classList.remove('hidden');
-            document.getElementById('lessonsSection').classList.add('hidden');
-            
-            // Set initial tab states
-            document.getElementById('resourcesTab').classList.add('tab-active');
-            document.getElementById('resourcesTab').classList.remove('tab-inactive');
-            document.getElementById('lessonsTab').classList.add('tab-inactive');
-            document.getElementById('lessonsTab').classList.remove('tab-active');
-            
-            // Initialize tab event listeners
-            initializeTabs();
-            
-            // Load data
-            loadResources();
-            loadLessons();
-        }
-
-      // Fix the initializeTabs function
-        function initializeTabs() {
-            const resourcesTab = document.getElementById('resourcesTab');
-            const lessonsTab = document.getElementById('lessonsTab');
-            console.log(resourcesTab)
-            
-            // Clear any existing listeners and add new ones
-            resourcesTab.replaceWith(resourcesTab.cloneNode(true));
-            lessonsTab.replaceWith(lessonsTab.cloneNode(true));
-            
-            // Get fresh references
-            const freshResourcesTab = document.getElementById('resourcesTab');
-            const freshLessonsTab = document.getElementById('lessonsTab');
-            
-            freshResourcesTab.addEventListener('click', () => showSection('resources'));
-            freshLessonsTab.addEventListener('click', () => showSection('lessons'));
-            
-            console.log('Tabs initialized successfully');
-        }
-        // Improved showSection function
-        function showSection(sectionName) {
-            console.log('Switching to section:', sectionName);
-            
-            // Hide all sections
-            document.getElementById('resourcesSection').classList.add('hidden');
-            document.getElementById('lessonsSection').classList.add('hidden');
-            
-            // Remove active state from all tabs
-            document.getElementById('resourcesTab').classList.remove('tab-active');
-            document.getElementById('resourcesTab').classList.add('tab-inactive');
-            document.getElementById('lessonsTab').classList.remove('tab-active');
-            document.getElementById('lessonsTab').classList.add('tab-inactive');
-            
-            // Show selected section and activate tab
-            if (sectionName === 'resources') {
-                document.getElementById('resourcesSection').classList.remove('hidden');
-                document.getElementById('resourcesTab').classList.remove('tab-inactive');
-                document.getElementById('resourcesTab').classList.add('tab-active');
-                console.log('Resources section shown');
-            } else if (sectionName === 'lessons') {
-                document.getElementById('lessonsSection').classList.remove('hidden');
-                document.getElementById('lessonsTab').classList.remove('tab-inactive');
-                document.getElementById('lessonsTab').classList.add('tab-active');
-                console.log('Lessons section shown');
-            }
-        }
-
-        function showGuestSection() {
-            document.getElementById('guestSection').style.display = 'block';
-            document.getElementById('userSection').style.display = 'none';
-            document.getElementById('loginBtn').style.display = 'block';
-            document.getElementById('userInfo').style.display = 'none';
-        }
-
-    
-
-        // Load Resources from API
-        async function loadResources() {
-            try {
-                showResourcesLoading();
-                
-                const response = await fetch('/api/resources');
-                const result = await response.json();
-                
-                if (result.success) {
-                    resources = result.data;
-                    displayResources();
-                } else {
-                    throw new Error(result.message);
-                }
-            } catch (error) {
-                console.error('Error loading resources:', error);
-                showResourcesEmpty();
-                showNotification('Failed to load resources', 'error');
-            }
-        }
-
-        function displayResources() {
-            const resourcesGrid = document.getElementById('resourcesGrid');
-            const loadingState = document.getElementById('resourcesLoading');
-            const emptyState = document.getElementById('resourcesEmpty');
-
-            loadingState.classList.add('hidden');
-
-            if (resources.length === 0) {
-                emptyState.classList.remove('hidden');
-                resourcesGrid.classList.add('hidden');
-                return;
-            }
-
-            emptyState.classList.add('hidden');
-            resourcesGrid.classList.remove('hidden');
-
-            // Define color arrays
-            const borderColors = [
-                'border-l-4 border-accent',        // Blue
-                'border-l-4 border-green-500',     // Green
-                'border-l-4 border-purple-500',    // Purple
-                'border-l-4 border-orange-500',    // Orange
-                'border-l-4 border-pink-500',      // Pink
-                'border-l-4 border-teal-500'       // Teal
-            ];
-            
-            const iconColors = [
-                'bg-accent',        // Blue
-                'bg-green-500',     // Green
-                'bg-purple-500',    // Purple
-                'bg-orange-500',    // Orange
-                'bg-pink-500',      // Pink
-                'bg-teal-500'       // Teal
-            ];
-            
-            const linkColors = [
-                'text-accent hover:text-accent',           // Blue
-                'text-green-600 hover:text-green-700',     // Green
-                'text-purple-600 hover:text-purple-700',   // Purple
-                'text-orange-600 hover:text-orange-700',   // Orange
-                'text-pink-600 hover:text-pink-700',       // Pink
-                'text-teal-600 hover:text-teal-700'        // Teal
-            ];
-
-            // Create resource cards with different colors
-            resourcesGrid.innerHTML = resources.map((resource, index) => {
-                // Cycle through colors based on index
-                const colorIndex = index % borderColors.length;
-                const borderColor = borderColors[colorIndex];
-                const iconColor = iconColors[colorIndex];
-                const linkColor = linkColors[colorIndex];
-                
-                return `
-                    <div class="bg-white p-6 w-full max-w-3xl rounded-xl shadow-lg hover-lift ${borderColor} transition-all duration-300">
-                        <div class="w-12 h-12 ${iconColor} rounded-lg flex items-center justify-center mb-4">
-                            <i class="fas fa-link text-white text-lg"></i>
-                        </div>
-                        <h3 class="text-xl font-semibold text-dark-blue mb-3">${resource.title}</h3>
-                        <p class="text-gray-600 mb-4">${resource.description}</p>
-                        <a href="${resource.link}" target="_blank" 
-                        class="inline-flex items-center ${linkColor} font-semibold hover:underline transition-colors duration-200">
-                            Visit Resource <i class="fas fa-external-link-alt ml-2"></i>
-                        </a>
-                        <p class="text-sm text-gray-500 mt-3">Added: ${new Date(resource.createdAt).toLocaleDateString()}</p>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function showResourcesLoading() {
-            document.getElementById('resourcesLoading').classList.remove('hidden');
-            document.getElementById('resourcesEmpty').classList.add('hidden');
-            document.getElementById('resourcesGrid').classList.add('hidden');
-        }
-
-        function showResourcesEmpty() {
-            document.getElementById('resourcesLoading').classList.add('hidden');
-            document.getElementById('resourcesEmpty').classList.remove('hidden');
-            document.getElementById('resourcesGrid').classList.add('hidden');
-        }
-
-        // Load Lessons from API
-        // async function loadLessons() {
-        //     try {
-        //         showLessonsLoading();
-                
-        //         const response = await fetch('/api/lessons');
-        //         const result = await response.json();
-                
-        //         if (result.success) {
-        //             lessons = result.data.filter(lesson => lesson.isActive);
-        //             displayLessons();
-        //         } else {
-        //             throw new Error(result.message);
-        //         }
-        //     } catch (error) {
-        //         console.error('Error loading lessons:', error);
-        //         showLessonsEmpty();
-        //         showNotification('Failed to load lessons', 'error');
-        //     }
-        // }
-
-        // new addition
-        // Load Lessons from API
-         // Add this global variable at the top with other variables
-        let userSubmissions = [];
-        async function loadLessons() {
-            try {
-                showLessonsLoading();
-                
-                // Fetch lessons
-                const lessonsResponse = await fetch('/api/lessons');
-                const lessonsResult = await lessonsResponse.json();
-                
-                if (lessonsResult.success) {
-                    lessons = lessonsResult.data.filter(lesson => lesson.isActive);
-                    
-                    // Fetch user's submissions if logged in
-                    if (currentUser) {
-                        await loadUserSubmissions();
-                    }
-                    
-                    displayLessons();
-                } else {
-                    throw new Error(lessonsResult.message);
-                }
-                } catch (error) {
-                    console.error('Error loading lessons:', error);
-                    showLessonsEmpty();
-                    showNotification('Failed to load lessons', 'error');
-                }
-            }
-
-            // Load user's submissions
-            async function loadUserSubmissions() {
-                try {
-                    const response = await fetch('/api/submissions');
-                    const result = await response.json();
-                    
-                    if (result.success) {
-                        // Store submissions for the current user
-                        userSubmissions = result.data.filter(submission => 
-                            submission.studentEmail === currentUser.email
-                        );
-                    }
-                } catch (error) {
-                    console.error('Error loading submissions:', error);
-                }
-            }
-
-   
-
-
-        // end
-
-        // function displayLessons() {
-        //     const lessonsContainer = document.getElementById('lessonsContainer');
-        //     const loadingState = document.getElementById('lessonsLoading');
-        //     const emptyState = document.getElementById('lessonsEmpty');
-
-        //     loadingState.classList.add('hidden');
-
-        //     if (lessons.length === 0) {
-        //         emptyState.classList.remove('hidden');
-        //         lessonsContainer.classList.add('hidden');
-        //         return;
-        //     }
-
-        //     emptyState.classList.add('hidden');
-        //     lessonsContainer.classList.remove('hidden');
-
-        //     // Create lesson cards
-        //     lessonsContainer.innerHTML = lessons.map((lesson, index) => `
-        //         <div class="bg-gray-50 rounded-xl shadow-lg p-8 border-l-4 border-accent hover-lift transition-all duration-300">
-        //             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-        //                 <div>
-        //                     <h3 class="text-2xl font-bold text-dark-blue mb-2">${lesson.title}</h3>
-        //                     <p class="text-gray-600">Published: ${new Date(lesson.createdAt).toLocaleDateString()}</p>
-        //                     ${lesson.dueDate ? `
-        //                         <p class="text-gray-600 mt-1">
-        //                             <i class="fas fa-calendar-alt mr-2"></i>
-        //                             Due: ${new Date(lesson.dueDate).toLocaleDateString()}
-        //                         </p>
-        //                     ` : ''}
-        //                 </div>
-        //                 <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold mt-2 md:mt-0">
-        //                     Active
-        //                 </span>
-        //             </div>
-
-        //             <!-- Lesson Notes -->
-        //             <div class="mb-6">
-        //                 <h4 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
-        //                     <i class="fas fa-sticky-note text-accent mr-2"></i>Lesson Notes
-        //                 </h4>
-        //                 <div class="bg-white p-4 rounded-lg border">
-        //                     <div class="text-gray-700 whitespace-pre-wrap">${lesson.content}</div>
-        //                 </div>
-        //             </div>
-
-        //             <!-- Project Assignment -->
-        //             <div class="mb-6">
-        //                 <h4 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
-        //                     <i class="fas fa-tasks text-accent mr-2"></i>Project: ${lesson.projectTitle}
-        //                 </h4>
-        //                 <div class="bg-white p-4 rounded-lg border">
-        //                     <div class="text-gray-700 whitespace-pre-wrap">${lesson.projectInstructions}</div>
-        //                 </div>
-        //             </div>
-
-        //             <!-- Project Submission -->
-        //             <div>
-        //                 <h4 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
-        //                     <i class="fas fa-paper-plane text-accent mr-2"></i>Submit Your Project
-        //                 </h4>
-        //                 <div class="bg-white p-4 rounded-lg border">
-        //                     <p class="text-gray-600 mb-3">Paste the link to your GitHub repository or live demo:</p>
-        //                     <div class="flex flex-col sm:flex-row gap-3">
-        //                         <input type="url" 
-        //                             id="projectLink-${lesson._id}"
-        //                             placeholder="https://github.com/your-username/project" 
-        //                             class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent">
-        //                         <button onclick="submitProject('${lesson._id}')" 
-        //                             class="bg-accent hover:bg-light-blue text-white px-6 py-2 rounded-lg transition-all duration-200 font-semibold">
-        //                             Submit Project
-        //                         </button>
-        //                     </div>
-        //                     <p class="text-sm text-gray-500 mt-2">Make sure your repository is public so we can review your code.</p>
-        //                 </div>
-        //             </div>
-        //         </div>
-        //     `).join('');
-        // }
-
-        // new addiiton
-        // function displayLessons() {
-        //     const lessonsContainer = document.getElementById('lessonsContainer');
-        //     const loadingState = document.getElementById('lessonsLoading');
-        //     const emptyState = document.getElementById('lessonsEmpty');
-
-        //     loadingState.classList.add('hidden');
-
-        //     if (lessons.length === 0) {
-        //         emptyState.classList.remove('hidden');
-        //         lessonsContainer.classList.add('hidden');
-        //         return;
-        //     }
-
-        //     emptyState.classList.add('hidden');
-        //     lessonsContainer.classList.remove('hidden');
-
-        //     // Create lesson cards
-        //     lessonsContainer.innerHTML = lessons.map((lesson, index) => {
-        //         // Check if user has submitted for this lesson
-        //         const userSubmission = userSubmissions.find(sub => 
-        //             sub.lessonId && (sub.lessonId._id === lesson._id || sub.lessonId === lesson._id)
-        //         );
-                
-        //         return `
-        //             <div class="bg-gray-50 rounded-xl shadow-lg p-8 border-l-4 border-accent hover-lift transition-all duration-300">
-        //                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-        //                     <div>
-        //                         <h3 class="text-2xl font-bold text-dark-blue mb-2">${lesson.title}</h3>
-        //                         <p class="text-gray-600">Published: ${new Date(lesson.createdAt).toLocaleDateString()}</p>
-        //                         ${lesson.dueDate ? `
-        //                             <p class="text-gray-600 mt-1">
-        //                                 <i class="fas fa-calendar-alt mr-2"></i>
-        //                                 Due: ${new Date(lesson.dueDate).toLocaleDateString()}
-        //                             </p>
-        //                         ` : ''}
-        //                     </div>
-        //                     <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold mt-2 md:mt-0">
-        //                         Active
-        //                     </span>
-        //                 </div>
-
-        //                 <!-- Lesson Notes -->
-        //                 <div class="mb-6">
-        //                     <h4 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
-        //                         <i class="fas fa-sticky-note text-accent mr-2"></i>Lesson Notes
-        //                     </h4>
-        //                     <div class="bg-white p-4 rounded-lg border">
-        //                         <div class="text-gray-700 whitespace-pre-wrap">${lesson.content}</div>
-        //                     </div>
-        //                 </div>
-
-        //                 <!-- Project Assignment -->
-        //                 <div class="mb-6">
-        //                     <h4 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
-        //                         <i class="fas fa-tasks text-accent mr-2"></i>Project: ${lesson.projectTitle}
-        //                     </h4>
-        //                     <div class="bg-white p-4 rounded-lg border">
-        //                         <div class="text-gray-700 whitespace-pre-wrap">${lesson.projectInstructions}</div>
-        //                     </div>
-        //                 </div>
-
-        //                 <!-- Submission Status or Submission Form -->
-        //                 ${renderSubmissionSection(lesson, userSubmission)}
-        //             </div>
-        //         `;
-        //     }).join('');
-        // }
-
-
-
-        // Helper function to safely escape HTML
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-function displayLessons() {
-    const lessonsContainer = document.getElementById('lessonsContainer');
-    const loadingState = document.getElementById('lessonsLoading');
-    const emptyState = document.getElementById('lessonsEmpty');
-
-    loadingState.classList.add('hidden');
-
-    if (lessons.length === 0) {
-        emptyState.classList.remove('hidden');
-        lessonsContainer.classList.add('hidden');
-        return;
-    }
-
-    emptyState.classList.add('hidden');
-    lessonsContainer.classList.remove('hidden');
-
-    // Clear the container completely first
-    lessonsContainer.innerHTML = '';
-    
-    console.log(`Displaying ${lessons.length} lessons`);
-
-    // Create each lesson as a separate element and append individually
-    lessons.forEach((lesson, index) => {
-        console.log(`Creating lesson ${index}: ${lesson.title}`);
-        
-        // Check if user has submitted for this lesson
-        const userSubmission = userSubmissions.find(sub => 
-            sub.lessonId && (sub.lessonId._id === lesson._id || sub.lessonId === lesson._id)
-        );
-        
-        // Create lesson div
-        const lessonDiv = document.createElement('div');
-        lessonDiv.className = 'bg-gray-50 rounded-xl shadow-lg p-8 border-l-4 border-accent hover-lift transition-all duration-300 mb-8';
-        
-        // Safely escape all text content
-        const escapedTitle = escapeHtml(lesson.title || 'Untitled Lesson');
-        const escapedContent = escapeHtml(lesson.content || 'No content available');
-        const escapedProjectTitle = escapeHtml(lesson.projectTitle || 'No project title');
-        const escapedProjectInstructions = escapeHtml(lesson.projectInstructions || 'No instructions available');
-        
-        // Build HTML with escaped content
-        lessonDiv.innerHTML = `
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-                <div>
-                    <h3 class="text-2xl font-bold text-dark-blue mb-2">${escapedTitle}</h3>
-                    <p class="text-gray-600">Published: ${new Date(lesson.createdAt).toLocaleDateString()}</p>
-                    ${lesson.dueDate ? `
-                        <p class="text-gray-600 mt-1">
-                            <i class="fas fa-calendar-alt mr-2"></i>
-                            Due: ${new Date(lesson.dueDate).toLocaleDateString()}
-                        </p>
-                    ` : ''}
-                </div>
-                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold mt-2 md:mt-0">
-                    Active
-                </span>
-            </div>
-
-            <!-- Lesson Notes -->
-            <div class="mb-6">
-                <h4 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
-                    <i class="fas fa-sticky-note text-accent mr-2"></i>Lesson Notes
-                </h4>
-                <div class="bg-white p-4 rounded-lg border">
-                    <div class="text-gray-700 whitespace-pre-wrap" id="content-${lesson._id}"></div>
-                </div>
-            </div>
-
-            <!-- Project Assignment -->
-            <div class="mb-6">
-                <h4 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
-                    <i class="fas fa-tasks text-accent mr-2"></i>Project: ${escapedProjectTitle}
-                </h4>
-                <div class="bg-white p-4 rounded-lg border">
-                    <div class="text-gray-700 whitespace-pre-wrap" id="instructions-${lesson._id}"></div>
-                </div>
-            </div>
-
-            <!-- Submission Status or Submission Form -->
-            <div id="submission-${lesson._id}"></div>
-        `;
-        
-        // Now safely set the text content using textContent (not innerHTML)
-        const contentDiv = lessonDiv.querySelector(`#content-${lesson._id}`);
-        const instructionsDiv = lessonDiv.querySelector(`#instructions-${lesson._id}`);
-        const submissionDiv = lessonDiv.querySelector(`#submission-${lesson._id}`);
-        
-        if (contentDiv) {
-            contentDiv.textContent = lesson.content || 'No content available';
-        }
-        
-        if (instructionsDiv) {
-            instructionsDiv.textContent = lesson.projectInstructions || 'No instructions available';
-        }
-        
-        if (submissionDiv) {
-            submissionDiv.innerHTML = renderSubmissionSection(lesson, userSubmission);
-        }
-        
-        // Append to container
-        lessonsContainer.appendChild(lessonDiv);
-        
-        console.log(`Lesson ${index} added successfully`);
     });
-}
 
-        // Helper function to render submission section
-        function renderSubmissionSection(lesson, submission) {
-            if (!currentUser) {
-                return `
-                    <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                        <p class="text-yellow-700">
-                            <i class="fas fa-exclamation-triangle mr-2"></i>
-                            You must be logged in to submit a project
-                        </p>
-                    </div>
-                `;
-            }
+    // Authentication functions
+    function login() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        firebase.auth().signInWithPopup(provider)
+            .then((result) => {
+                console.log('User logged in:', result.user);
+            })
+            .catch((error) => {
+                console.error('Login error:', error);
+                showNotification('Login failed. Please try again.', 'error');
+            });
+    }
+
+    function logout() {
+        firebase.auth().signOut()
+            .then(() => {
+                console.log('User logged out');
+                showNotification('Logged out successfully', 'success');
+            })
+            .catch((error) => {
+                console.error('Logout error:', error);
+                showNotification('Logout failed', 'error');
+            });
+    }
+
+    // Section management
+    function showUserSection(user) {
+        document.getElementById('guestSection').style.display = 'none';
+        document.getElementById('userSection').style.display = 'block';
+        document.getElementById('loginBtn').style.display = 'none';
+        document.getElementById('userInfo').style.display = 'flex';
+        
+        // Update user info
+        document.getElementById('userAvatar').src = user.photoURL;
+        document.getElementById('userName').textContent = user.displayName;
+        document.getElementById('welcomeName').textContent = user.displayName;
+        
+        // Set initial section states
+        document.getElementById('resourcesSection').classList.remove('hidden');
+        document.getElementById('lessonsSection').classList.add('hidden');
+        document.getElementById('surveySection').classList.add('hidden');
+        
+        // Set initial tab states
+        document.getElementById('resourcesTab').classList.add('tab-active');
+        document.getElementById('resourcesTab').classList.remove('tab-inactive');
+        document.getElementById('lessonsTab').classList.add('tab-inactive');
+        document.getElementById('lessonsTab').classList.remove('tab-active');
+        document.getElementById('surveyTab').classList.add('tab-inactive');
+        document.getElementById('surveyTab').classList.remove('tab-active');
+        
+        // Initialize tab event listeners
+        initializeTabs();
+        
+        // Load data
+        loadResources();
+        loadLessons();
+    }
+
+    function showGuestSection() {
+        document.getElementById('guestSection').style.display = 'block';
+        document.getElementById('userSection').style.display = 'none';
+        document.getElementById('loginBtn').style.display = 'block';
+        document.getElementById('userInfo').style.display = 'none';
+    }
+
+    // Tab Navigation
+    function showSection(sectionName) {
+        console.log('Switching to section:', sectionName);
+        
+        // Hide all sections
+        document.getElementById('resourcesSection').classList.add('hidden');
+        document.getElementById('lessonsSection').classList.add('hidden');
+        document.getElementById('surveySection').classList.add('hidden');
+        
+        // Remove active state from all tabs
+        document.getElementById('resourcesTab').classList.remove('tab-active');
+        document.getElementById('resourcesTab').classList.add('tab-inactive');
+        document.getElementById('lessonsTab').classList.remove('tab-active');
+        document.getElementById('lessonsTab').classList.add('tab-inactive');
+        document.getElementById('surveyTab').classList.remove('tab-active');
+        document.getElementById('surveyTab').classList.add('tab-inactive');
+        
+        // Show selected section and activate tab
+        if (sectionName === 'resources') {
+            document.getElementById('resourcesSection').classList.remove('hidden');
+            document.getElementById('resourcesTab').classList.remove('tab-inactive');
+            document.getElementById('resourcesTab').classList.add('tab-active');
+            console.log('Resources section shown');
+        } else if (sectionName === 'lessons') {
+            document.getElementById('lessonsSection').classList.remove('hidden');
+            document.getElementById('lessonsTab').classList.remove('tab-inactive');
+            document.getElementById('lessonsTab').classList.add('tab-active');
+            console.log('Lessons section shown');
+        } else if (sectionName === 'survey') {
+            document.getElementById('surveySection').classList.remove('hidden');
+            document.getElementById('surveyTab').classList.remove('tab-inactive');
+            document.getElementById('surveyTab').classList.add('tab-active');
+            console.log('Survey section shown');
+            loadSurveyStatus(); // Check if user has already submitted
+        }
+    }
+
+    function initializeTabs() {
+        const resourcesTab = document.getElementById('resourcesTab');
+        const lessonsTab = document.getElementById('lessonsTab');
+        const surveyTab = document.getElementById('surveyTab');
+        
+        // Clear any existing listeners
+        resourcesTab.replaceWith(resourcesTab.cloneNode(true));
+        lessonsTab.replaceWith(lessonsTab.cloneNode(true));
+        surveyTab.replaceWith(surveyTab.cloneNode(true));
+        
+        // Get fresh references
+        const freshResourcesTab = document.getElementById('resourcesTab');
+        const freshLessonsTab = document.getElementById('lessonsTab');
+        const freshSurveyTab = document.getElementById('surveyTab');
+        
+        freshResourcesTab.addEventListener('click', () => showSection('resources'));
+        freshLessonsTab.addEventListener('click', () => showSection('lessons'));
+        freshSurveyTab.addEventListener('click', () => showSection('survey'));
+        
+        console.log('Tabs initialized successfully');
+    }
+
+    // Resources Management
+    async function loadResources() {
+        try {
+            showResourcesLoading();
             
-            if (submission) {
-                // User has submitted - show status
-                const status = submission.status || 'submitted';
-                const statusColors = {
-                    'submitted': 'bg-blue-100 text-blue-800',
-                    'reviewed': 'bg-yellow-100 text-yellow-800',
-                    'approved': 'bg-green-100 text-green-800',
-                    'rejected': 'bg-red-100 text-red-800'
-                };
-                
-                const statusText = {
-                    'submitted': 'Submitted - Pending Review',
-                    'reviewed': 'Under Review',
-                    'approved': 'Approved ✓',
-                    'rejected': 'Needs Revision'
-                };
-                
-                return `
-                    <div>
-                        <h4 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
-                            <i class="fas fa-paper-plane text-accent mr-2"></i>Your Submission Status
-                        </h4>
-                        <div class="bg-white p-6 rounded-lg border">
-                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
-                                <div>
-                                    <h5 class="font-semibold text-gray-700">Project Link:</h5>
-                                    <a href="${submission.projectLink}" target="_blank" 
-                                    class="text-accent hover:underline break-all">
-                                        ${submission.projectLink}
-                                    </a>
-                                    <p class="text-sm text-gray-500 mt-1">
-                                        Submitted: ${new Date(submission.submittedAt).toLocaleString()}
-                                    </p>
-                                </div>
-                                <span class="inline-flex px-3 py-1 rounded-full text-sm font-semibold mt-2 sm:mt-0 ${statusColors[status]}">
-                                    ${statusText[status]}
-                                </span>
-                            </div>
-                            
-                            <!-- Resubmission form (show if rejected or if they want to update) -->
-                            ${status === 'rejected' ? `
-                                <div class="mt-4 pt-4 border-t">
-                                    <p class="text-red-600 mb-3">
-                                        <i class="fas fa-exclamation-circle mr-2"></i>
-                                        Please revise your project and resubmit.
-                                    </p>
-                                    <div class="flex flex-col sm:flex-row gap-3">
-                                        <input type="url" 
-                                            id="resubmitLink-${lesson._id}"
-                                            placeholder="https://github.com/your-username/updated-project" 
-                                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent">
-                                        <button onclick="resubmitProject('${lesson._id}', '${submission._id}')" 
-                                            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-all duration-200 font-semibold">
-                                            Resubmit
-                                        </button>
-                                    </div>
-                                </div>
-                            ` : ''}
-                            
-                            <!-- Update submission button for all statuses -->
-                            <div class="mt-4">
-                                <button onclick="showUpdateForm('${lesson._id}', '${submission.projectLink}')" 
-                                    class="text-accent hover:text-light-blue font-medium text-sm">
-                                    <i class="fas fa-edit mr-1"></i>Update your submission
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
+            const response = await fetch('/api/resources');
+            const result = await response.json();
+            
+            if (result.success) {
+                resources = result.data;
+                displayResources();
             } else {
-                // User hasn't submitted - show submission form
-                return `
-                    <div>
-                        <h4 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
-                            <i class="fas fa-paper-plane text-accent mr-2"></i>Submit Your Project
-                        </h4>
-                        <div class="bg-white p-4 rounded-lg border">
-                            <p class="text-gray-600 mb-3">Paste the link to your GitHub repository or live demo:</p>
-                            <div class="flex flex-col sm:flex-row gap-3">
-                                <input type="url" 
-                                    id="projectLink-${lesson._id}"
-                                    placeholder="https://github.com/your-username/project" 
-                                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent">
-                                <button onclick="submitProject('${lesson._id}')" 
-                                    class="bg-accent hover:bg-light-blue text-white px-6 py-2 rounded-lg transition-all duration-200 font-semibold">
-                                    Submit Project
-                                </button>
-                            </div>
-                            <p class="text-sm text-gray-500 mt-2">Make sure your repository is public so we can review your code.</p>
-                        </div>
-                    </div>
-                `;
+                throw new Error(result.message);
             }
+        } catch (error) {
+            console.error('Error loading resources:', error);
+            showResourcesEmpty();
+            showNotification('Failed to load resources', 'error');
+        }
+    }
+
+    function displayResources() {
+        const resourcesGrid = document.getElementById('resourcesGrid');
+        const loadingState = document.getElementById('resourcesLoading');
+        const emptyState = document.getElementById('resourcesEmpty');
+
+        loadingState.classList.add('hidden');
+
+        if (resources.length === 0) {
+            emptyState.classList.remove('hidden');
+            resourcesGrid.classList.add('hidden');
+            return;
         }
 
+        emptyState.classList.add('hidden');
+        resourcesGrid.classList.remove('hidden');
 
-        // end of addition
+        // Define color arrays
+        const borderColors = [
+            'border-l-4 border-accent',
+            'border-l-4 border-green-500',
+            'border-l-4 border-purple-500',
+            'border-l-4 border-orange-500',
+            'border-l-4 border-pink-500',
+            'border-l-4 border-teal-500'
+        ];
+        
+        const iconColors = [
+            'bg-accent',
+            'bg-green-500',
+            'bg-purple-500',
+            'bg-orange-500',
+            'bg-pink-500',
+            'bg-teal-500'
+        ];
+        
+        const linkColors = [
+            'text-accent hover:text-accent',
+            'text-green-600 hover:text-green-700',
+            'text-purple-600 hover:text-purple-700',
+            'text-orange-600 hover:text-orange-700',
+            'text-pink-600 hover:text-pink-700',
+            'text-teal-600 hover:text-teal-700'
+        ];
 
-        function showLessonsLoading() {
-            document.getElementById('lessonsLoading').classList.remove('hidden');
-            document.getElementById('lessonsEmpty').classList.add('hidden');
-            document.getElementById('lessonsContainer').classList.add('hidden');
-        }
-
-        function showLessonsEmpty() {
-            document.getElementById('lessonsLoading').classList.add('hidden');
-            document.getElementById('lessonsEmpty').classList.remove('hidden');
-            document.getElementById('lessonsContainer').classList.add('hidden');
-        }
-
-        // Project Submission
-        // async function submitProject(lessonId) {
-        //     const projectLink = document.getElementById(`projectLink-${lessonId}`).value.trim();
+        // Create resource cards with different colors
+        resourcesGrid.innerHTML = resources.map((resource, index) => {
+            const colorIndex = index % borderColors.length;
+            const borderColor = borderColors[colorIndex];
+            const iconColor = iconColors[colorIndex];
+            const linkColor = linkColors[colorIndex];
             
-        //     if (!projectLink) {
-        //         showNotification('Please enter a project link', 'error');
-        //         return;
-        //     }
-
-        //     if (!currentUser) {
-        //         showNotification('You must be logged in to submit a project', 'error');
-        //         return;
-        //     }
-
-        //     try {
-        //         const submissionData = {
-        //             studentName: currentUser.displayName,
-        //             studentEmail: currentUser.email,
-        //             lessonId: lessonId,
-        //             projectLink: projectLink
-        //         };
-
-        //         const response = await fetch('/api/submissions', {
-        //             method: 'POST',
-        //             headers: {
-        //                 'Content-Type': 'application/json',
-        //             },
-        //             body: JSON.stringify(submissionData)
-        //         });
-
-        //         const result = await response.json();
-
-        //         if (result.success) {
-        //             showNotification('Project submitted successfully!', 'success');
-        //             document.getElementById(`projectLink-${lessonId}`).value = '';
-        //         } else {
-        //             throw new Error(result.message);
-        //         }
-        //     } catch (error) {
-        //         console.error('Error submitting project:', error);
-        //         showNotification('Failed to submit project: ' + error.message, 'error');
-        //     }
-        // }
-
-        // Project Submission
-async function submitProject(lessonId) {
-    const projectLink = document.getElementById(`projectLink-${lessonId}`).value.trim();
-    
-    if (!projectLink) {
-        showNotification('Please enter a project link', 'error');
-        return;
-    }
-
-    if (!currentUser) {
-        showNotification('You must be logged in to submit a project', 'error');
-        return;
-    }
-
-    try {
-        const submissionData = {
-            studentName: currentUser.displayName,
-            studentEmail: currentUser.email,
-            lessonId: lessonId,
-            projectLink: projectLink
-        };
-
-        const response = await fetch('/api/submissions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(submissionData)
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            showNotification('Project submitted successfully!', 'success');
-            document.getElementById(`projectLink-${lessonId}`).value = '';
-            // Reload lessons to show the new submission status
-            await loadLessons();
-        } else {
-            throw new Error(result.message);
-        }
-    } catch (error) {
-        console.error('Error submitting project:', error);
-        showNotification('Failed to submit project: ' + error.message, 'error');
-    }
-}
-
-        // new addiition
-        // Resubmit project (for rejected submissions)
-async function resubmitProject(lessonId, submissionId) {
-    const projectLink = document.getElementById(`resubmitLink-${lessonId}`).value.trim();
-    
-    if (!projectLink) {
-        showNotification('Please enter a project link', 'error');
-        return;
-    }
-
-    try {
-        const submissionData = {
-            studentName: currentUser.displayName,
-            studentEmail: currentUser.email,
-            lessonId: lessonId,
-            projectLink: projectLink
-        };
-
-        const response = await fetch('/api/submissions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(submissionData)
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            showNotification('Project resubmitted successfully!', 'success');
-            // Reload lessons to show updated status
-            await loadLessons();
-        } else {
-            throw new Error(result.message);
-        }
-    } catch (error) {
-        console.error('Error resubmitting project:', error);
-        showNotification('Failed to resubmit project: ' + error.message, 'error');
-    }
-}
-
-// Show update form for existing submission
-function showUpdateForm(lessonId, currentLink) {
-    // Create a modal or inline form to update the submission
-    const formHtml = `
-        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div class="bg-white rounded-xl shadow-xl p-6 max-w-md w-full">
-                <h3 class="text-xl font-bold text-dark-blue mb-4">Update Your Submission</h3>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">New Project Link</label>
-                    <input type="url" 
-                        id="updateLink-${lessonId}"
-                        value="${currentLink}"
-                        placeholder="https://github.com/your-username/project" 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent">
-                </div>
-                <div class="flex justify-end gap-3">
-                    <button onclick="closeUpdateForm()" 
-                        class="px-4 py-2 text-gray-600 hover:text-gray-800">
-                        Cancel
-                    </button>
-                    <button onclick="updateProject('${lessonId}')" 
-                        class="bg-accent hover:bg-light-blue text-white px-6 py-2 rounded-lg font-semibold">
-                        Update
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    // Remove any existing modal
-    const existingModal = document.getElementById('updateModal');
-    if (existingModal) existingModal.remove();
-    
-    // Create and show new modal
-    const modal = document.createElement('div');
-    modal.id = 'updateModal';
-    modal.innerHTML = formHtml;
-    document.body.appendChild(modal);
-}
-
-// Close the update form modal
-function closeUpdateForm() {
-    const modal = document.getElementById('updateModal');
-    if (modal) modal.remove();
-}
-
-// Update existing submission
-async function updateProject(lessonId) {
-    const projectLink = document.getElementById(`updateLink-${lessonId}`).value.trim();
-    
-    if (!projectLink) {
-        showNotification('Please enter a project link', 'error');
-        return;
-    }
-
-    try {
-        const submissionData = {
-            studentName: currentUser.displayName,
-            studentEmail: currentUser.email,
-            lessonId: lessonId,
-            projectLink: projectLink
-        };
-
-        const response = await fetch('/api/submissions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(submissionData)
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            showNotification('Project updated successfully!', 'success');
-            closeUpdateForm();
-            // Reload lessons to show updated status
-            await loadLessons();
-        } else {
-            throw new Error(result.message);
-        }
-    } catch (error) {
-        console.error('Error updating project:', error);
-        showNotification('Failed to update project: ' + error.message, 'error');
-    }
-}
-
-
-        // end of addition
-
-        // Notification system
-        function showNotification(message, type = 'info') {
-            // Remove existing notifications
-            const existingNotifications = document.querySelectorAll('.notification');
-            existingNotifications.forEach(notification => notification.remove());
-
-            const notification = document.createElement('div');
-            notification.className = `notification fixed top-4 right-4 p-4 rounded-lg shadow-lg text-white z-50 transform transition-transform duration-300 ${
-                type === 'success' ? 'bg-green-500' :
-                type === 'error' ? 'bg-red-500' :
-                'bg-blue-500'
-            }`;
-            notification.innerHTML = `
-                <div class="flex items-center gap-2">
-                    <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info'}"></i>
-                    <span>${message}</span>
+            return `
+                <div class="bg-white p-6 w-full max-w-3xl rounded-xl shadow-lg hover-lift ${borderColor} transition-all duration-300">
+                    <div class="w-12 h-12 ${iconColor} rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-link text-white text-lg"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-dark-blue mb-3">${escapeHtml(resource.title)}</h3>
+                    <p class="text-gray-600 mb-4">${escapeHtml(resource.description)}</p>
+                    <a href="${resource.link}" target="_blank" 
+                    class="inline-flex items-center ${linkColor} font-semibold hover:underline transition-colors duration-200">
+                        Visit Resource <i class="fas fa-external-link-alt ml-2"></i>
+                    </a>
+                    <p class="text-sm text-gray-500 mt-3">Added: ${new Date(resource.createdAt).toLocaleDateString()}</p>
                 </div>
             `;
-            
-            document.body.appendChild(notification);
-            
-            // Animate in
-            setTimeout(() => {
-                notification.style.transform = 'translateX(0)';
-            }, 100);
+        }).join('');
+    }
 
-            // Remove after 3 seconds
-            setTimeout(() => {
-                notification.style.transform = 'translateX(100%)';
-                setTimeout(() => {
-                    notification.remove();
-                }, 300);
-            }, 3000);
+    function showResourcesLoading() {
+        document.getElementById('resourcesLoading').classList.remove('hidden');
+        document.getElementById('resourcesEmpty').classList.add('hidden');
+        document.getElementById('resourcesGrid').classList.add('hidden');
+    }
+
+    function showResourcesEmpty() {
+        document.getElementById('resourcesLoading').classList.add('hidden');
+        document.getElementById('resourcesEmpty').classList.remove('hidden');
+        document.getElementById('resourcesGrid').classList.add('hidden');
+    }
+
+    // Lessons Management
+    async function loadLessons() {
+        try {
+            showLessonsLoading();
+            
+            // Fetch lessons
+            const lessonsResponse = await fetch('/api/lessons');
+            const lessonsResult = await lessonsResponse.json();
+            
+            if (lessonsResult.success) {
+                lessons = lessonsResult.data.filter(lesson => lesson.isActive);
+                
+                // Fetch user's submissions if logged in
+                if (currentUser) {
+                    await loadUserSubmissions();
+                }
+                
+                displayLessons();
+            } else {
+                throw new Error(lessonsResult.message);
+            }
+        } catch (error) {
+            console.error('Error loading lessons:', error);
+            showLessonsEmpty();
+            showNotification('Failed to load lessons', 'error');
+        }
+    }
+
+    async function loadUserSubmissions() {
+        try {
+            const response = await fetch('/api/submissions');
+            const result = await response.json();
+            
+            if (result.success) {
+                userSubmissions = result.data.filter(submission => 
+                    submission.studentEmail === currentUser.email
+                );
+            }
+        } catch (error) {
+            console.error('Error loading submissions:', error);
+        }
+    }
+
+    function displayLessons() {
+        const lessonsContainer = document.getElementById('lessonsContainer');
+        const loadingState = document.getElementById('lessonsLoading');
+        const emptyState = document.getElementById('lessonsEmpty');
+
+        loadingState.classList.add('hidden');
+
+        if (lessons.length === 0) {
+            emptyState.classList.remove('hidden');
+            lessonsContainer.classList.add('hidden');
+            return;
         }
 
-        // Initialize animations when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            // Animate form elements sequentially
-            const animatedElements = document.querySelectorAll('.animate-fade-in, .animate-slide-in');
-            animatedElements.forEach((el, index) => {
-                el.style.animationDelay = `${index * 100}ms`;
+        emptyState.classList.add('hidden');
+        lessonsContainer.classList.remove('hidden');
+        lessonsContainer.innerHTML = '';
+
+        lessons.forEach((lesson, index) => {
+            const userSubmission = userSubmissions.find(sub => 
+                sub.lessonId && (sub.lessonId._id === lesson._id || sub.lessonId === lesson._id)
+            );
+            
+            const lessonDiv = document.createElement('div');
+            lessonDiv.className = 'bg-gray-50 rounded-xl shadow-lg p-8 border-l-4 border-accent hover-lift transition-all duration-300 mb-8';
+            
+            const escapedTitle = escapeHtml(lesson.title || 'Untitled Lesson');
+            const escapedProjectTitle = escapeHtml(lesson.projectTitle || 'No project title');
+            
+            lessonDiv.innerHTML = `
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                    <div>
+                        <h3 class="text-2xl font-bold text-dark-blue mb-2">${escapedTitle}</h3>
+                        <p class="text-gray-600">Published: ${new Date(lesson.createdAt).toLocaleDateString()}</p>
+                        ${lesson.dueDate ? `
+                            <p class="text-gray-600 mt-1">
+                                <i class="fas fa-calendar-alt mr-2"></i>
+                                Due: ${new Date(lesson.dueDate).toLocaleDateString()}
+                            </p>
+                        ` : ''}
+                    </div>
+                    <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold mt-2 md:mt-0">
+                        Active
+                    </span>
+                </div>
+
+                <div class="mb-6">
+                    <h4 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
+                        <i class="fas fa-sticky-note text-accent mr-2"></i>Lesson Notes
+                    </h4>
+                    <div class="bg-white p-4 rounded-lg border">
+                        <div class="text-gray-700 whitespace-pre-wrap" id="content-${lesson._id}"></div>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h4 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
+                        <i class="fas fa-tasks text-accent mr-2"></i>Project: ${escapedProjectTitle}
+                    </h4>
+                    <div class="bg-white p-4 rounded-lg border">
+                        <div class="text-gray-700 whitespace-pre-wrap" id="instructions-${lesson._id}"></div>
+                    </div>
+                </div>
+
+                <div id="submission-${lesson._id}"></div>
+            `;
+            
+            const contentDiv = lessonDiv.querySelector(`#content-${lesson._id}`);
+            const instructionsDiv = lessonDiv.querySelector(`#instructions-${lesson._id}`);
+            const submissionDiv = lessonDiv.querySelector(`#submission-${lesson._id}`);
+            
+            if (contentDiv) contentDiv.textContent = lesson.content || 'No content available';
+            if (instructionsDiv) instructionsDiv.textContent = lesson.projectInstructions || 'No instructions available';
+            if (submissionDiv) submissionDiv.innerHTML = renderSubmissionSection(lesson, userSubmission);
+            
+            lessonsContainer.appendChild(lessonDiv);
+        });
+    }
+
+    function renderSubmissionSection(lesson, submission) {
+        if (!currentUser) {
+            return `
+                <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                    <p class="text-yellow-700">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        You must be logged in to submit a project
+                    </p>
+                </div>
+            `;
+        }
+        
+        if (submission) {
+            const status = submission.status || 'submitted';
+            const statusColors = {
+                'submitted': 'bg-blue-100 text-blue-800',
+                'reviewed': 'bg-yellow-100 text-yellow-800',
+                'approved': 'bg-green-100 text-green-800',
+                'rejected': 'bg-red-100 text-red-800'
+            };
+            
+            const statusText = {
+                'submitted': 'Submitted - Pending Review',
+                'reviewed': 'Under Review',
+                'approved': 'Approved ✓',
+                'rejected': 'Needs Revision'
+            };
+            
+            return `
+                <div>
+                    <h4 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
+                        <i class="fas fa-paper-plane text-accent mr-2"></i>Your Submission Status
+                    </h4>
+                    <div class="bg-white p-6 rounded-lg border">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+                            <div>
+                                <h5 class="font-semibold text-gray-700">Project Link:</h5>
+                                <a href="${submission.projectLink}" target="_blank" 
+                                class="text-accent hover:underline break-all">
+                                    ${submission.projectLink}
+                                </a>
+                                <p class="text-sm text-gray-500 mt-1">
+                                    Submitted: ${new Date(submission.submittedAt).toLocaleString()}
+                                </p>
+                            </div>
+                            <span class="inline-flex px-3 py-1 rounded-full text-sm font-semibold mt-2 sm:mt-0 ${statusColors[status]}">
+                                ${statusText[status]}
+                            </span>
+                        </div>
+                        
+                        ${status === 'rejected' ? `
+                            <div class="mt-4 pt-4 border-t">
+                                <p class="text-red-600 mb-3">
+                                    <i class="fas fa-exclamation-circle mr-2"></i>
+                                    Please revise your project and resubmit.
+                                </p>
+                                <div class="flex flex-col sm:flex-row gap-3">
+                                    <input type="url" 
+                                        id="resubmitLink-${lesson._id}"
+                                        placeholder="https://github.com/your-username/updated-project" 
+                                        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent">
+                                    <button onclick="resubmitProject('${lesson._id}', '${submission._id}')" 
+                                        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-all duration-200 font-semibold">
+                                        Resubmit
+                                    </button>
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        <div class="mt-4">
+                            <button onclick="showUpdateForm('${lesson._id}', '${submission.projectLink}')" 
+                                class="text-accent hover:text-light-blue font-medium text-sm">
+                                <i class="fas fa-edit mr-1"></i>Update your submission
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else {
+            return `
+                <div>
+                    <h4 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
+                        <i class="fas fa-paper-plane text-accent mr-2"></i>Submit Your Project
+                    </h4>
+                    <div class="bg-white p-4 rounded-lg border">
+                        <p class="text-gray-600 mb-3">Paste the link to your GitHub repository or live demo:</p>
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <input type="url" 
+                                id="projectLink-${lesson._id}"
+                                placeholder="https://github.com/your-username/project" 
+                                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent">
+                            <button onclick="submitProject('${lesson._id}')" 
+                                class="bg-accent hover:bg-light-blue text-white px-6 py-2 rounded-lg transition-all duration-200 font-semibold">
+                                Submit Project
+                            </button>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2">Make sure your repository is public so we can review your code.</p>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    function showLessonsLoading() {
+        document.getElementById('lessonsLoading').classList.remove('hidden');
+        document.getElementById('lessonsEmpty').classList.add('hidden');
+        document.getElementById('lessonsContainer').classList.add('hidden');
+    }
+
+    function showLessonsEmpty() {
+        document.getElementById('lessonsLoading').classList.add('hidden');
+        document.getElementById('lessonsEmpty').classList.remove('hidden');
+        document.getElementById('lessonsContainer').classList.add('hidden');
+    }
+
+    // Project Submission Functions
+    async function submitProject(lessonId) {
+        const projectLink = document.getElementById(`projectLink-${lessonId}`).value.trim();
+        
+        if (!projectLink) {
+            showNotification('Please enter a project link', 'error');
+            return;
+        }
+
+        if (!currentUser) {
+            showNotification('You must be logged in to submit a project', 'error');
+            return;
+        }
+
+        try {
+            const submissionData = {
+                studentName: currentUser.displayName,
+                studentEmail: currentUser.email,
+                lessonId: lessonId,
+                projectLink: projectLink
+            };
+
+            const response = await fetch('/api/submissions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(submissionData)
             });
 
-            // Add hover effects to all interactive elements
-            const interactiveElements = document.querySelectorAll('input, select, textarea, button, label');
-            interactiveElements.forEach(el => {
-                el.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-2px)';
-                });
-                el.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0)';
-                });
+            const result = await response.json();
+
+            if (result.success) {
+                showNotification('Project submitted successfully!', 'success');
+                document.getElementById(`projectLink-${lessonId}`).value = '';
+                await loadLessons();
+            } else {
+                throw new Error(result.message);
+            }
+        } catch (error) {
+            console.error('Error submitting project:', error);
+            showNotification('Failed to submit project: ' + error.message, 'error');
+        }
+    }
+
+    async function resubmitProject(lessonId, submissionId) {
+        const projectLink = document.getElementById(`resubmitLink-${lessonId}`).value.trim();
+        
+        if (!projectLink) {
+            showNotification('Please enter a project link', 'error');
+            return;
+        }
+
+        try {
+            const submissionData = {
+                studentName: currentUser.displayName,
+                studentEmail: currentUser.email,
+                lessonId: lessonId,
+                projectLink: projectLink
+            };
+
+            const response = await fetch('/api/submissions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(submissionData)
             });
-              
+
+            const result = await response.json();
+
+            if (result.success) {
+                showNotification('Project resubmitted successfully!', 'success');
+                await loadLessons();
+            } else {
+                throw new Error(result.message);
+            }
+        } catch (error) {
+            console.error('Error resubmitting project:', error);
+            showNotification('Failed to resubmit project: ' + error.message, 'error');
+        }
+    }
+
+    function showUpdateForm(lessonId, currentLink) {
+        const formHtml = `
+            <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div class="bg-white rounded-xl shadow-xl p-6 max-w-md w-full">
+                    <h3 class="text-xl font-bold text-dark-blue mb-4">Update Your Submission</h3>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">New Project Link</label>
+                        <input type="url" 
+                            id="updateLink-${lessonId}"
+                            value="${currentLink}"
+                            placeholder="https://github.com/your-username/project" 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent">
+                    </div>
+                    <div class="flex justify-end gap-3">
+                        <button onclick="closeUpdateForm()" 
+                            class="px-4 py-2 text-gray-600 hover:text-gray-800">
+                            Cancel
+                        </button>
+                        <button onclick="updateProject('${lessonId}')" 
+                            class="bg-accent hover:bg-light-blue text-white px-6 py-2 rounded-lg font-semibold">
+                            Update
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        const existingModal = document.getElementById('updateModal');
+        if (existingModal) existingModal.remove();
+        
+        const modal = document.createElement('div');
+        modal.id = 'updateModal';
+        modal.innerHTML = formHtml;
+        document.body.appendChild(modal);
+    }
+
+    function closeUpdateForm() {
+        const modal = document.getElementById('updateModal');
+        if (modal) modal.remove();
+    }
+
+    async function updateProject(lessonId) {
+        const projectLink = document.getElementById(`updateLink-${lessonId}`).value.trim();
+        
+        if (!projectLink) {
+            showNotification('Please enter a project link', 'error');
+            return;
+        }
+
+        try {
+            const submissionData = {
+                studentName: currentUser.displayName,
+                studentEmail: currentUser.email,
+                lessonId: lessonId,
+                projectLink: projectLink
+            };
+
+            const response = await fetch('/api/submissions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(submissionData)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showNotification('Project updated successfully!', 'success');
+                closeUpdateForm();
+                await loadLessons();
+            } else {
+                throw new Error(result.message);
+            }
+        } catch (error) {
+            console.error('Error updating project:', error);
+            showNotification('Failed to update project: ' + error.message, 'error');
+        }
+    }
+
+    // Survey Functions
+    async function loadSurveyStatus() {
+        try {
+            document.getElementById('surveyLoading').classList.remove('hidden');
+            document.getElementById('alreadySubmitted').classList.add('hidden');
+            document.getElementById('surveyFormContainer').classList.add('hidden');
+            
+            if (!currentUser) {
+                showNotification('Please login to access the survey', 'error');
+                return;
+            }
+            
+            // Check if user has already submitted
+            const response = await fetch(`/api/surveys?studentEmail=${encodeURIComponent(currentUser.email)}`);
+            const result = await response.json();
+            
+            document.getElementById('surveyLoading').classList.add('hidden');
+            
+            if (result.success && result.data && result.data.length > 0) {
+                userHasSubmittedSurvey = true;
+                existingSurvey = result.data[0];
+                
+                document.getElementById('alreadySubmitted').classList.remove('hidden');
+                document.getElementById('submissionDate').textContent = 
+                    new Date(existingSurvey.submissionDate).toLocaleDateString();
+                
+                document.getElementById('surveyFormContainer').classList.add('hidden');
+            } else {
+                userHasSubmittedSurvey = false;
+                existingSurvey = null;
+                
+                document.getElementById('alreadySubmitted').classList.add('hidden');
+                document.getElementById('surveyFormContainer').classList.remove('hidden');
+                
+                initializeSurveyForm();
+            }
+        } catch (error) {
+            console.error('Error loading survey status:', error);
+            document.getElementById('surveyLoading').classList.add('hidden');
+            showNotification('Failed to load survey status', 'error');
+        }
+    }
+
+    function initializeSurveyForm() {
+        const form = document.getElementById('surveyForm');
+        form.reset();
+        updateStarRating(5);
+        form.addEventListener('submit', handleSurveySubmit);
+    }
+
+    function updateStarRating(value) {
+        const ratingValue = parseInt(value);
+        document.getElementById('ratingValue').textContent = ratingValue;
+        
+        for (let i = 1; i <= 10; i++) {
+            const star = document.querySelector(`.star-${i}`);
+            if (star) {
+                if (i <= ratingValue) {
+                    star.classList.remove('text-gray-300');
+                    star.classList.add('text-yellow-400');
+                } else {
+                    star.classList.remove('text-yellow-400');
+                    star.classList.add('text-gray-300');
+                }
+            }
+        }
+    }
+
+    function updateRatingValue(value) {
+        document.getElementById('ratingValue').textContent = value;
+        updateStarRating(value);
+    }
+
+    async function handleSurveySubmit(event) {
+        event.preventDefault();
+        
+        if (!currentUser) {
+            showNotification('Please login to submit the survey', 'error');
+            return;
+        }
+        
+        if (userHasSubmittedSurvey) {
+            showNotification('You have already submitted a survey', 'error');
+            return;
+        }
+        
+        const form = event.target;
+        const formData = new FormData(form);
+        const submitBtn = document.getElementById('submitSurveyBtn');
+        
+        // Validate required fields
+        const requiredFields = [
+            'learnedAnything',
+            'resultsObserved',
+            'continueNextYear',
+            'challengesFaced',
+            'improvementsSuggested',
+            'helpNeeded',
+            'exercisesHelpfulness',
+            'experienceRating'
+        ];
+        
+        let isValid = true;
+        requiredFields.forEach(field => {
+            if (!formData.get(field)) {
+                isValid = false;
+            }
+        });
+        
+        if (!isValid) {
+            showNotification('Please fill in all required fields', 'error');
+            return;
+        }
+        
+        const surveyData = {
+            studentEmail: currentUser.email,
+            studentName: currentUser.displayName,
+            learnedAnything: formData.get('learnedAnything'),
+            resultsObserved: formData.get('resultsObserved'),
+            continueNextYear: formData.get('continueNextYear'),
+            challengesFaced: formData.get('challengesFaced'),
+            improvementsSuggested: formData.get('improvementsSuggested'),
+            helpNeeded: formData.get('helpNeeded'),
+            exercisesHelpfulness: formData.get('exercisesHelpfulness'),
+            experienceRating: parseInt(formData.get('experienceRating')),
+            additionalComments: formData.get('additionalComments') || ''
+        };
+        
+        if (surveyData.experienceRating < 1 || surveyData.experienceRating > 10) {
+            showNotification('Please select a valid rating between 1 and 10', 'error');
+            return;
+        }
+        
+        try {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Submitting...';
+            
+            const response = await fetch('/api/surveys', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(surveyData)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                userHasSubmittedSurvey = true;
+                existingSurvey = result.data;
+                
+                showNotification('Survey submitted successfully! Thank you for your feedback.', 'success');
+                
+                document.getElementById('alreadySubmitted').classList.remove('hidden');
+                document.getElementById('surveyFormContainer').classList.add('hidden');
+                document.getElementById('submissionDate').textContent = 
+                    new Date(result.data.submissionDate).toLocaleDateString();
+                
+                form.reset();
+            } else {
+                if (response.status === 409) {
+                    userHasSubmittedSurvey = true;
+                    showNotification('You have already submitted a survey', 'info');
+                    
+                    document.getElementById('alreadySubmitted').classList.remove('hidden');
+                    document.getElementById('surveyFormContainer').classList.add('hidden');
+                    await loadSurveyStatus();
+                } else {
+                    throw new Error(result.message || 'Failed to submit survey');
+                }
+            }
+        } catch (error) {
+            console.error('Error submitting survey:', error);
+            showNotification('Failed to submit survey: ' + error.message, 'error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Submit Survey';
+        }
+    }
+
+    // Utility Functions
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function showNotification(message, type = 'info') {
+        const existingNotifications = document.querySelectorAll('.notification');
+        existingNotifications.forEach(notification => notification.remove());
+
+        const notification = document.createElement('div');
+        notification.className = `notification fixed top-4 right-4 p-4 rounded-lg shadow-lg text-white z-50 transform transition-transform duration-300 ${
+            type === 'success' ? 'bg-green-500' :
+            type === 'error' ? 'bg-red-500' :
+            'bg-blue-500'
+        }`;
+        notification.innerHTML = `
+            <div class="flex items-center gap-2">
+                <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info'}"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 100);
+
+        setTimeout(() => {
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }, 3000);
+    }
+
+    // Initialize animations when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        const animatedElements = document.querySelectorAll('.animate-fade-in, .animate-slide-in');
+        animatedElements.forEach((el, index) => {
+            el.style.animationDelay = `${index * 100}ms`;
         });
 
+        const interactiveElements = document.querySelectorAll('input, select, textarea, button, label');
+        interactiveElements.forEach(el => {
+            el.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+            });
+            el.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
 
-
-    </script>
+        const starRatingContainer = document.getElementById('starRating');
+        if (starRatingContainer) {
+            starRatingContainer.innerHTML = '';
+            for (let i = 1; i <= 10; i++) {
+                const star = document.createElement('i');
+                star.className = `fas fa-star text-gray-300 text-xl mx-0.5 star-${i}`;
+                starRatingContainer.appendChild(star);
+            }
+        }
+    });
+</script>
 </body>
 </html>
 

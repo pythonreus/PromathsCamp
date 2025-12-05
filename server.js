@@ -109,6 +109,378 @@ const submissionSchema = new mongoose.Schema({
 
 const Submission = mongoose.model('Submission', submissionSchema);
 
+// Survey Schema
+const surveySchema = new mongoose.Schema({
+    studentEmail: { 
+        type: String, 
+        required: true,
+        index: true
+    },
+    studentName: { 
+        type: String, 
+        required: true 
+    },
+    learnedAnything: { 
+        type: String, 
+        required: true,
+        enum: ['Yes', 'No']
+    },
+    resultsObserved: { 
+        type: String, 
+        required: true,
+        enum: ['Big results', 'Small results', 'No results']
+    },
+    continueNextYear: { 
+        type: String, 
+        required: true,
+        enum: ['Yes', 'No']
+    },
+    challengesFaced: { 
+        type: String, 
+        required: true,
+        maxlength: 1000
+    },
+    improvementsSuggested: { 
+        type: String, 
+        required: true,
+        maxlength: 1000
+    },
+    helpNeeded: { 
+        type: String, 
+        required: true,
+        maxlength: 1000
+    },
+    exercisesHelpfulness: { 
+        type: String, 
+        required: true,
+        enum: ['Very helpful', 'To some extent', 'Not really']
+    },
+    experienceRating: { 
+        type: Number, 
+        required: true,
+        min: 1,
+        max: 10
+    },
+    additionalComments: { 
+        type: String, 
+        maxlength: 1500
+    },
+    submissionDate: { 
+        type: Date, 
+        default: Date.now 
+    }
+});
+
+// Create index for efficient queries
+surveySchema.index({ studentEmail: 1, submissionDate: -1 });
+
+const Survey = mongoose.model('Survey', surveySchema);
+// Survey Endpoints
+app.post('/api/surveys', async (req, res) => {
+    try {
+        console.log('Survey submission received:', req.body.studentEmail);
+        
+        const {
+            studentEmail,
+            studentName,
+            learnedAnything,
+            resultsObserved,
+            continueNextYear,
+            challengesFaced,
+            improvementsSuggested,
+            helpNeeded,
+            exercisesHelpfulness,
+            experienceRating,
+            additionalComments
+        } = req.body;
+
+        // Validate required fields
+        const requiredFields = {
+            studentEmail,
+            studentName,
+            learnedAnything,
+            resultsObserved,
+            continueNextYear,
+            challengesFaced,
+            improvementsSuggested,
+            helpNeeded,
+            exercisesHelpfulness,
+            experienceRating
+        };
+
+        for (const [field, value] of Object.entries(requiredFields)) {
+            if (!value || (typeof value === 'string' && value.trim() === '')) {
+                return res.status(400).json({
+                    success: false,
+                    message: `${field.replace(/([A-Z])/g, ' $1').toLowerCase()} is required`
+                });
+            }
+        }
+
+        // Check if student already submitted a survey
+        const existingSurvey = await Survey.findOne({ studentEmail: studentEmail.trim() });
+        if (existingSurvey) {
+            return res.status(409).json({
+                success: false,
+                message: 'You have already submitted a survey'
+            });
+        }
+
+        // Validate experience rating
+        const rating = parseInt(experienceRating);
+        if (isNaN(rating) || rating < 1 || rating > 10) {
+            return res.status(400).json({
+                success: false,
+                message: 'Experience rating must be a number between 1 and 10'
+            });
+        }
+
+        // Create new survey
+        const survey = new Survey({
+            studentEmail: studentEmail.trim(),
+            studentName: studentName.trim(),
+            learnedAnything,
+            resultsObserved,
+            continueNextYear,
+            challengesFaced: challengesFaced.trim(),
+            improvementsSuggested: improvementsSuggested.trim(),
+            helpNeeded: helpNeeded.trim(),
+            exercisesHelpfulness,
+            experienceRating: rating,
+            additionalComments: additionalComments ? additionalComments.trim() : ''
+        });
+
+        await survey.save();
+        console.log('Survey saved successfully for:', studentEmail);
+
+        res.status(201).json({
+            success: true,
+            message: 'Survey submitted successfully',
+            data: survey
+        });
+
+    } catch (error) {
+        console.error('Survey submission error:', error);
+        
+        // Handle duplicate key errors
+        if (error.code === 11000) {
+            return res.status(409).json({
+                success: false,
+                message: 'You have already submitted a survey'
+            });
+        }
+
+        // Handle validation errors
+        if (error.name === 'ValidationError') {
+            const messages = Object.values(error.errors).map(err => err.message);
+            return res.status(400).json({
+                success: false,
+                message: 'Validation error',
+                errors: messages
+            });
+        }
+
+        res.status(500).json({
+            success: false,
+            message: 'Failed to submit survey',
+            error: error.message
+        });
+    }
+});
+
+app.get('/api/surveys', async (req, res) => {
+    try {
+        const { 
+            studentEmail, 
+            startDate, 
+            endDate,
+            sortBy = 'submissionDate',
+            sortOrder = 'desc'
+        } = req.query;
+
+        let query = {};
+        
+        // Filter by student email if provided
+        if (studentEmail) {
+            query.studentEmail = studentEmail;
+        }
+
+        // Filter by date range if provided
+        if (startDate || endDate) {
+            query.submissionDate = {};
+            if (startDate) {
+                query.submissionDate.$gte = new Date(startDate);
+            }
+            if (endDate) {
+                query.submissionDate.$lte = new Date(endDate);
+            }
+        }
+
+        // Sorting
+        const sortOptions = {};
+        sortOptions[sortBy] = sortOrder === 'asc' ? 1 : -1;
+
+        const surveys = await Survey.find(query)
+            .sort(sortOptions)
+            .limit(100); // Limit to prevent overload
+
+        res.json({
+            success: true,
+            count: surveys.length,
+            data: surveys
+        });
+
+    } catch (error) {
+        console.error('Error fetching surveys:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch surveys',
+            error: error.message
+        });
+    }
+});
+
+app.get('/api/surveys/summary', async (req, res) => {
+    try {
+        // Get survey statistics
+        const totalSurveys = await Survey.countDocuments();
+
+        if (totalSurveys === 0) {
+            return res.json({
+                success: true,
+                message: 'No surveys submitted yet',
+                data: {
+                    totalSurveys: 0,
+                    statistics: {}
+                }
+            });
+        }
+
+        // Get aggregated statistics
+        const stats = {
+            learnedAnything: await Survey.aggregate([
+                { $group: { _id: "$learnedAnything", count: { $sum: 1 } } }
+            ]),
+            resultsObserved: await Survey.aggregate([
+                { $group: { _id: "$resultsObserved", count: { $sum: 1 } } }
+            ]),
+            continueNextYear: await Survey.aggregate([
+                { $group: { _id: "$continueNextYear", count: { $sum: 1 } } }
+            ]),
+            exercisesHelpfulness: await Survey.aggregate([
+                { $group: { _id: "$exercisesHelpfulness", count: { $sum: 1 } } }
+            ]),
+            averageRating: await Survey.aggregate([
+                { $group: { _id: null, average: { $avg: "$experienceRating" } } }
+            ]),
+            ratingDistribution: await Survey.aggregate([
+                { $group: { _id: "$experienceRating", count: { $sum: 1 } } },
+                { $sort: { _id: 1 } }
+            ]),
+            latestSurveys: await Survey.find()
+                .sort({ submissionDate: -1 })
+                .limit(5)
+                .select('studentName studentEmail experienceRating submissionDate')
+        };
+
+        // Format the response
+        const formattedStats = {
+            totalSurveys,
+            learnedAnything: stats.learnedAnything.reduce((acc, curr) => {
+                acc[curr._id] = curr.count;
+                return acc;
+            }, {}),
+            resultsObserved: stats.resultsObserved.reduce((acc, curr) => {
+                acc[curr._id] = curr.count;
+                return acc;
+            }, {}),
+            continueNextYear: stats.continueNextYear.reduce((acc, curr) => {
+                acc[curr._id] = curr.count;
+                return acc;
+            }, {}),
+            exercisesHelpfulness: stats.exercisesHelpfulness.reduce((acc, curr) => {
+                acc[curr._id] = curr.count;
+                return acc;
+            }, {}),
+            averageRating: stats.averageRating[0]?.average ? parseFloat(stats.averageRating[0].average.toFixed(2)) : 0,
+            ratingDistribution: stats.ratingDistribution.reduce((acc, curr) => {
+                acc[curr._id] = curr.count;
+                return acc;
+            }, {}),
+            latestSurveys: stats.latestSurveys
+        };
+
+        res.json({
+            success: true,
+            data: formattedStats
+        });
+
+    } catch (error) {
+        console.error('Error fetching survey summary:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch survey summary',
+            error: error.message
+        });
+    }
+});
+
+app.get('/api/surveys/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const survey = await Survey.findById(id);
+        
+        if (!survey) {
+            return res.status(404).json({
+                success: false,
+                message: 'Survey not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            data: survey
+        });
+
+    } catch (error) {
+        console.error('Error fetching survey:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch survey',
+            error: error.message
+        });
+    }
+});
+
+app.delete('/api/surveys/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const survey = await Survey.findByIdAndDelete(id);
+        
+        if (!survey) {
+            return res.status(404).json({
+                success: false,
+                message: 'Survey not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            message: 'Survey deleted successfully'
+        });
+
+    } catch (error) {
+        console.error('Error deleting survey:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to delete survey',
+            error: error.message
+        });
+    }
+});
+
 // Routes
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
