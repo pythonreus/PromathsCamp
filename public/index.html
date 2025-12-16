@@ -219,6 +219,26 @@
             pointer-events: none;
         }
 
+
+        /* Project section specific styles */
+#projectLinksPreview a {
+    transition: all 0.2s ease;
+}
+
+#projectLinksPreview a:hover {
+    color: #303f9f;
+    text-decoration: underline;
+}
+
+/* Status badge animations */
+#projectStatusBadge {
+    transition: all 0.3s ease;
+}
+
+#projectReviewMessage {
+    animation: fadeIn 0.5s ease-out;
+}
+
     </style>
 </head>
 <body class="bg-gradient-to-br from-dark-blue to-medium-blue min-h-screen overflow-x-hidden">
@@ -368,6 +388,10 @@
                     </button>
                     <button id="lessonsTab" class="tab-button flex-1 py-3 px-6 rounded-md font-semibold transition-all duration-200 tab-inactive">
                         <i class="fas fa-book mr-2"></i>Lessons
+                    </button>
+                     <!-- Add this new project tab -->
+                    <button id="projectTab" class="tab-button flex-1 py-3 px-6 rounded-md font-semibold transition-all duration-200 tab-inactive">
+                        <i class="fas fa-code mr-2"></i>Projects
                     </button>
                     <!-- Add this to your navigation tabs section (after lessons tab) -->
                     <button id="surveyTab" class="tab-button flex-1 py-3 px-6 rounded-md font-semibold transition-all duration-200 tab-inactive">
@@ -639,6 +663,428 @@
         </div>
     </div>
 </section>
+
+
+
+<!-- Project Submissions Section -->
+<section id="projectSection" class="py-16 bg-white hidden">
+    <div class="container mx-auto px-4 max-w-4xl">
+        <h2 class="text-3xl font-bold text-center text-dark-blue mb-12">
+            <i class="fas fa-code text-accent mr-3"></i>Project Submissions
+        </h2>
+
+        <!-- Motivation Section -->
+        <div class="mb-8 bg-gradient-to-r from-accent/10 to-light-blue/10 border-l-4 border-accent p-6 rounded-lg">
+            <h3 class="text-xl font-bold text-dark-blue mb-3 flex items-center">
+                <i class="fas fa-rocket text-accent mr-3"></i>
+                Show Us Who You Are!
+            </h3>
+            <p class="text-gray-700 mb-3">
+                This is your opportunity to create something amazing that represents <strong>you</strong>. 
+                Build a portfolio website that tells your story, showcases your skills, and demonstrates what you've learned.
+            </p>
+            <p class="text-gray-600 text-sm">
+                <i class="fas fa-quote-left text-accent mr-2"></i>
+                The best portfolios are personal, authentic, and reflect the creator's unique journey.
+            </p>
+        </div>
+
+        <!-- Project Requirements -->
+<div class="mt-8 mb-8 bg-blue-50 border border-blue-200 rounded-xl p-6">
+    <h4 class="text-lg font-semibold text-blue-800 mb-4 flex items-center">
+        <i class="fas fa-clipboard-list text-blue-500 mr-2"></i>
+        Project Requirements: Portfolio Website
+    </h4>
+    
+    <p class="text-blue-700 mb-4">
+        Create a personal portfolio website that showcases who you are and what you aspire to achieve. 
+        This is your chance to impress us with your skills!
+    </p>
+    
+    <div class="space-y-4">
+        <div class="border-b pb-4">
+            <h5 class="font-semibold text-blue-800 mb-2 flex items-center">
+                <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                Required Elements:
+            </h5>
+            <ul class="space-y-2 text-blue-700 text-sm pl-5">
+                <li class="flex items-start gap-2">
+                    <i class="fas fa-image text-blue-400 mt-1"></i>
+                    <span><strong>Your images</strong> must appear on the portfolio</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fas fa-user text-blue-400 mt-1"></i>
+                    <span><strong>Your name</strong> must be prominently displayed</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fas fa-info-circle text-blue-400 mt-1"></i>
+                    <span><strong>"About Me" section</strong> telling us who you are and your future aspirations</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fas fa-envelope text-blue-400 mt-1"></i>
+                    <span><strong>Contact information</strong> must be included</span>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="border-b pb-4">
+            <h5 class="font-semibold text-blue-800 mb-2 flex items-center">
+                <i class="fas fa-code text-blue-500 mr-2"></i>
+                Technical Requirements:
+            </h5>
+            <ul class="space-y-2 text-blue-700 text-sm pl-5">
+                <li class="flex items-start gap-2">
+                    <i class="fab fa-html5 text-orange-500 mt-1"></i>
+                    <span><strong>HTML & CSS</strong> must be used </span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fab fa-js-square text-yellow-500 mt-1"></i>
+                    <span><strong>JavaScript must be implemented</strong> (animations, interactivity, etc., anything you can do with js but it must be used)</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fas fa-palette text-purple-500 mt-1"></i>
+                    <span><strong>Visually appealing design</strong> - make it beautiful!</span>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="border-b pb-4">
+            <h5 class="font-semibold text-blue-800 mb-2 flex items-center">
+                <i class="fas fa-plus-circle text-green-500 mr-2"></i>
+                Recommended Additional Content:
+            </h5>
+            <ul class="space-y-2 text-blue-700 text-sm pl-5">
+                <li class="flex items-start gap-2">
+                    <i class="fas fa-briefcase text-gray-600 mt-1"></i>
+                    <span><strong>Work experience</strong> (if any)</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fas fa-star text-yellow-500 mt-1"></i>
+                    <span><strong>Your skills</strong> (technical and soft skills)</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fas fa-heart text-red-400 mt-1"></i>
+                    <span><strong>Your hobbies</strong> and interests</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fas fa-trophy text-yellow-600 mt-1"></i>
+                    <span><strong>Achievements</strong> and projects</span>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <h5 class="font-semibold text-yellow-800 mb-2 flex items-center">
+                <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+                Important Rules:
+            </h5>
+            <ul class="space-y-2 text-yellow-700 text-sm pl-5">
+                <li class="flex items-start gap-2">
+                    <i class="fas fa-ban text-red-500 mt-1"></i>
+                    <span><strong>AI-generated code is NOT allowed</strong> - any code suspected to be from AI may result in no certificate being issued</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fas fa-graduation-cap text-blue-500 mt-1"></i>
+                    <span>You can use AI for <strong>learning purposes only</strong>, but all submitted code must be your own</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fas fa-eye text-purple-500 mt-1"></i>
+                    <span>The portfolio should <strong>tell your unique story</strong> and showcase your personality</span>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+            <h5 class="font-semibold text-green-800 mb-2 flex items-center">
+                <i class="fas fa-lightbulb text-green-500 mr-2"></i>
+                Tips for Success:
+            </h5>
+            <ul class="space-y-2 text-green-700 text-sm pl-5">
+                <li class="flex items-start gap-2">
+                    <i class="fas fa-magic text-purple-500 mt-1"></i>
+                    <span>Be creative and make it <strong>uniquely yours</strong></span>
+                </li>
+                
+                <li class="flex items-start gap-2">
+                    <i class="fas fa-rocket text-orange-500 mt-1"></i>
+                    <span>Show us what you <strong>hope to achieve</strong> in the future</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fas fa-code-branch text-gray-600 mt-1"></i>
+                    <span>Use <strong>clean, organized code that you understand</strong></span>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Example Portfolio Structure -->
+        <div class="border border-gray-300 rounded-lg p-4 bg-white">
+            <h6 class="font-semibold text-gray-800 mb-3">Example Portfolio Structure:</h6>
+            <div class="text-sm text-gray-600 space-y-1">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-home text-gray-400"></i>
+                    <span>Home/Hero Section (with your name and photo)</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-user text-gray-400"></i>
+                    <span>About Me (your story, aspirations)</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-briefcase text-gray-400"></i>
+                    <span>Experience/Skills Section</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-heart text-gray-400"></i>
+                    <span>Hobbies/Interests</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-envelope text-gray-400"></i>
+                    <span>Contact Section</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Submission Checklist -->
+        <div class="border border-purple-200 rounded-lg p-4 bg-purple-50">
+            <h6 class="font-semibold text-purple-800 mb-3 flex items-center">
+                <i class="fas fa-clipboard-check text-purple-500 mr-2"></i>
+                Before Submitting, Check:
+            </h6>
+            <div class="space-y-2">
+                <label class="flex items-start gap-2 cursor-pointer">
+                    <input type="checkbox" class="mt-1 accent-purple-600">
+                    <span class="text-sm text-purple-700">Both GitHub Repository and Hosted Site URLs are working</span>
+                </label>
+                <label class="flex items-start gap-2 cursor-pointer">
+                    <input type="checkbox" class="mt-1 accent-purple-600">
+                    <span class="text-sm text-purple-700">All required elements are included</span>
+                </label>
+                <label class="flex items-start gap-2 cursor-pointer">
+                    <input type="checkbox" class="mt-1 accent-purple-600">
+                    <span class="text-sm text-purple-700">JavaScript is implemented and working</span>
+                </label>
+                <label class="flex items-start gap-2 cursor-pointer">
+                    <input type="checkbox" class="mt-1 accent-purple-600">
+                    <span class="text-sm text-purple-700">Website is visually appealing and responsive</span>
+                </label>
+                <label class="flex items-start gap-2 cursor-pointer">
+                    <input type="checkbox" class="mt-1 accent-purple-600">
+                    <span class="text-sm text-purple-700">Code is original (not AI-generated)</span>
+                </label>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-6 pt-4 border-t border-blue-200">
+        <p class="text-sm text-blue-600">
+            <i class="fas fa-clock mr-2"></i>
+            <strong>Deadline:</strong> Submit before the program ends. You can update your submission until the final deadline.
+        </p>
+        <p class="text-sm text-blue-600 mt-2">
+            <i class="fas fa-certificate mr-2"></i>
+            <strong>Certificate Eligibility:</strong> A successful portfolio submission is required to receive your completion certificate.
+        </p>
+    </div>
+</div>
+
+        <!-- Project Status Message -->
+        <div id="projectStatusMessage" class="mb-8">
+            <div id="noProjectMessage" class="bg-blue-50 border border-blue-200 rounded-xl p-6 text-center hidden">
+                <i class="fas fa-code text-blue-500 text-4xl mb-4"></i>
+                <h3 class="text-2xl font-bold text-blue-800 mb-2">Submit Your Final Project</h3>
+                <p class="text-blue-700 mb-4">Share your GitHub repository and hosted site for review.</p>
+            </div>
+            
+            <div id="hasProjectMessage" class="bg-green-50 border border-green-200 rounded-xl p-6 hidden">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                    <div>
+                        <h3 class="text-2xl font-bold text-green-800 mb-2 flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            Project Submitted!
+                        </h3>
+                        <p class="text-green-700">Your project has been submitted for review.</p>
+                    </div>
+                    <div class="mt-4 md:mt-0">
+                        <span id="projectStatusBadge" class="inline-flex px-4 py-2 rounded-full text-sm font-semibold"></span>
+                        <p id="projectUpdateDate" class="text-sm text-green-600 mt-1"></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="projectReviewMessage" class="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mt-4 hidden">
+                <h4 class="text-lg font-semibold text-yellow-800 mb-2 flex items-center">
+                    <i class="fas fa-comment-alt text-yellow-500 mr-2"></i>
+                    Review Feedback
+                </h4>
+                <p id="reviewMessageText" class="text-yellow-700"></p>
+            </div>
+        </div>
+
+        <!-- Project Form -->
+        <div class="bg-white rounded-xl shadow-lg p-8 border border-gray-200">
+            <form id="projectForm" class="space-y-6">
+                <input type="hidden" id="projectId">
+                <input type="hidden" id="isUpdate" value="false">
+                
+                <!-- Student Information (read-only) -->
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="text-lg font-semibold text-dark-blue mb-3 flex items-center">
+                        <i class="fas fa-user-circle text-accent mr-2"></i>
+                        Student Information
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                            <input type="text" id="studentName" readonly
+                                class="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <input type="email" id="studentEmail" readonly
+                                class="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project Information -->
+                <div class="space-y-4">
+                    <div>
+                        <label for="projectTitle" class="block text-lg font-semibold text-dark-blue mb-2">
+                            <i class="fas fa-heading text-accent mr-2"></i>
+                            Project Title *
+                        </label>
+                        <input type="text" id="projectTitle" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent transition-all duration-200"
+                            placeholder="Enter your project title (e.g., E-commerce Website, Portfolio Website)">
+                        <p class="text-sm text-gray-500 mt-1">Choose a descriptive title that represents your project</p>
+                    </div>
+
+                    <div>
+                        <label for="githubRepo" class="block text-lg font-semibold text-dark-blue mb-2">
+                            <i class="fab fa-github text-accent mr-2"></i>
+                            GitHub Repository URL *
+                        </label>
+                        <input type="url" id="githubRepo" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent transition-all duration-200"
+                            placeholder="https://github.com/your-username/project-name">
+                        <p class="text-sm text-gray-500 mt-1">Make sure your repository is public so we can review your code</p>
+                    </div>
+
+                    <div>
+                        <label for="hostedSite" class="block text-lg font-semibold text-dark-blue mb-2">
+                            <i class="fas fa-globe text-accent mr-2"></i>
+                            Hosted Site URL *
+                        </label>
+                        <input type="url" id="hostedSite" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent transition-all duration-200"
+                            placeholder="https://your-username.github.io/project-name">
+                        <p class="text-sm text-gray-500 mt-1">A link to your deployed site, GitHub Pages link</p>
+                    </div>
+
+                    <!-- Project Links Preview -->
+                    <div id="projectLinksPreview" class="bg-gray-50 p-4 rounded-lg space-y-3 hidden">
+                        <h4 class="font-semibold text-gray-700">Project Links Preview</h4>
+                        <div class="flex items-center gap-2">
+                            <i class="fab fa-github text-gray-600"></i>
+                            <a id="githubPreview" href="#" target="_blank" 
+                                class="text-accent hover:underline text-sm truncate">GitHub Repository</a>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-external-link-alt text-gray-600"></i>
+                            <a id="hostedPreview" href="#" target="_blank" 
+                                class="text-accent hover:underline text-sm truncate">Live Demo</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="pt-6 border-t">
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button type="submit" id="submitProjectBtn" 
+                            class="flex-1 bg-accent hover:bg-light-blue text-white font-bold py-4 px-6 rounded-lg transition-all duration-300 transform hover:scale-[1.02]">
+                            <i class="fas fa-paper-plane mr-2"></i>
+                            <span id="submitButtonText">Submit Project</span>
+                        </button>
+                        <button type="button" id="clearFormBtn" 
+                            class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-4 px-6 rounded-lg transition-all duration-300">
+                            <i class="fas fa-times mr-2"></i>
+                            Clear Form
+                        </button>
+                    </div>
+                    <p class="text-sm text-gray-500 text-center mt-4">
+                        * Required fields. You can update your submission at any time.
+                    </p>
+                </div>
+            </form>
+
+            
+
+            <!-- Important Notes -->
+            <div class="mt-8 bg-blue-50 border border-blue-200 rounded-xl p-6">
+                <h4 class="text-lg font-semibold text-blue-800 mb-3 flex items-center">
+                    <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                    Important Notes
+                </h4>
+                <ul class="space-y-2 text-blue-700 text-sm">
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                        <span>Only one project submission is allowed per student</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                        <span>You can update your submission if you need to make changes</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                        <span>Make sure both URLs are working and accessible</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                        <span>Check your project status regularly for feedback</span>
+                    </li>
+                </ul>
+            </div>
+
+
+            <!-- Quick Requirements Summary -->
+        <div class="mb-1 mt-8 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+            <h4 class="text-sm font-semibold text-blue-800 mb-2 flex items-center">
+                <i class="fas fa-bullseye text-blue-500 mr-2"></i>
+                Quick Summary: Build a Portfolio Website
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                <span class="text-blue-700 flex items-center gap-1">
+                    <i class="fas fa-check text-green-500"></i> Your name & photos
+                </span>
+                <span class="text-blue-700 flex items-center gap-1">
+                    <i class="fas fa-check text-green-500"></i> About Me section
+                </span>
+                <span class="text-blue-700 flex items-center gap-1">
+                    <i class="fas fa-check text-green-500"></i> Contact information
+                </span>
+                <span class="text-blue-700 flex items-center gap-1">
+                    <i class="fas fa-check text-green-500"></i> HTML, CSS & JavaScript
+                </span>
+                <span class="text-blue-700 flex items-center gap-1">
+                    <i class="fas fa-check text-green-500"></i> Visually appealing design
+                </span>
+                <span class="text-blue-700 flex items-center gap-1">
+                    <i class="fas fa-check text-green-500"></i> Original code (no AI)
+                </span>
+            </div>
+        </div>
+
+        </div>
+
+        
+
+        <!-- Loading State -->
+        <div id="projectLoading" class="text-center py-12">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <p class="text-gray-600">Loading project information...</p>
+        </div>
+    </div>
+</section>
+
     </div>
 
     <!-- Footer -->
@@ -666,6 +1112,8 @@
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
 
+  
+
     // Global variables
     let currentUser = null;
     let resources = [];
@@ -673,6 +1121,7 @@
     let userSubmissions = [];
     let userHasSubmittedSurvey = false;
     let existingSurvey = null;
+    let userProject = null; // Add this line
 
     // Auth state observer
     firebase.auth().onAuthStateChanged(async (user) => {
@@ -734,38 +1183,41 @@
             });
     }
 
-    // Section management
-    function showUserSection(user) {
-        document.getElementById('guestSection').style.display = 'none';
-        document.getElementById('userSection').style.display = 'block';
-        document.getElementById('loginBtn').style.display = 'none';
-        document.getElementById('userInfo').style.display = 'flex';
-        
-        // Update user info
-        document.getElementById('userAvatar').src = user.photoURL;
-        document.getElementById('userName').textContent = user.displayName;
-        document.getElementById('welcomeName').textContent = user.displayName;
-        
-        // Set initial section states
-        document.getElementById('resourcesSection').classList.remove('hidden');
-        document.getElementById('lessonsSection').classList.add('hidden');
-        document.getElementById('surveySection').classList.add('hidden');
-        
-        // Set initial tab states
-        document.getElementById('resourcesTab').classList.add('tab-active');
-        document.getElementById('resourcesTab').classList.remove('tab-inactive');
-        document.getElementById('lessonsTab').classList.add('tab-inactive');
-        document.getElementById('lessonsTab').classList.remove('tab-active');
-        document.getElementById('surveyTab').classList.add('tab-inactive');
-        document.getElementById('surveyTab').classList.remove('tab-active');
-        
-        // Initialize tab event listeners
-        initializeTabs();
-        
-        // Load data
-        loadResources();
-        loadLessons();
-    }
+  // Section management
+function showUserSection(user) {
+    document.getElementById('guestSection').style.display = 'none';
+    document.getElementById('userSection').style.display = 'block';
+    document.getElementById('loginBtn').style.display = 'none';
+    document.getElementById('userInfo').style.display = 'flex';
+    
+    // Update user info
+    document.getElementById('userAvatar').src = user.photoURL || '';
+    document.getElementById('userName').textContent = user.displayName || 'User';
+    document.getElementById('welcomeName').textContent = user.displayName || 'User';
+    
+    // Set initial section states
+    document.getElementById('resourcesSection').classList.remove('hidden');
+    document.getElementById('lessonsSection').classList.add('hidden');
+    document.getElementById('surveySection').classList.add('hidden');
+    document.getElementById('projectSection').classList.add('hidden'); // Add this line
+    
+    // Set initial tab states
+    document.getElementById('resourcesTab').classList.add('tab-active');
+    document.getElementById('resourcesTab').classList.remove('tab-inactive');
+    document.getElementById('lessonsTab').classList.add('tab-inactive');
+    document.getElementById('lessonsTab').classList.remove('tab-active');
+    document.getElementById('surveyTab').classList.add('tab-inactive');
+    document.getElementById('surveyTab').classList.remove('tab-active');
+    document.getElementById('projectTab').classList.add('tab-inactive'); // Add this line
+    document.getElementById('projectTab').classList.remove('tab-active'); // Add this line
+    
+    // Initialize tab event listeners
+    initializeTabs();
+    
+    // Load data
+    loadResources();
+    loadLessons();
+}
 
     function showGuestSection() {
         document.getElementById('guestSection').style.display = 'block';
@@ -774,64 +1226,76 @@
         document.getElementById('userInfo').style.display = 'none';
     }
 
-    // Tab Navigation
     function showSection(sectionName) {
-        console.log('Switching to section:', sectionName);
-        
-        // Hide all sections
-        document.getElementById('resourcesSection').classList.add('hidden');
-        document.getElementById('lessonsSection').classList.add('hidden');
-        document.getElementById('surveySection').classList.add('hidden');
-        
-        // Remove active state from all tabs
-        document.getElementById('resourcesTab').classList.remove('tab-active');
-        document.getElementById('resourcesTab').classList.add('tab-inactive');
-        document.getElementById('lessonsTab').classList.remove('tab-active');
-        document.getElementById('lessonsTab').classList.add('tab-inactive');
-        document.getElementById('surveyTab').classList.remove('tab-active');
-        document.getElementById('surveyTab').classList.add('tab-inactive');
-        
-        // Show selected section and activate tab
-        if (sectionName === 'resources') {
-            document.getElementById('resourcesSection').classList.remove('hidden');
-            document.getElementById('resourcesTab').classList.remove('tab-inactive');
-            document.getElementById('resourcesTab').classList.add('tab-active');
-            console.log('Resources section shown');
-        } else if (sectionName === 'lessons') {
-            document.getElementById('lessonsSection').classList.remove('hidden');
-            document.getElementById('lessonsTab').classList.remove('tab-inactive');
-            document.getElementById('lessonsTab').classList.add('tab-active');
-            console.log('Lessons section shown');
-        } else if (sectionName === 'survey') {
-            document.getElementById('surveySection').classList.remove('hidden');
-            document.getElementById('surveyTab').classList.remove('tab-inactive');
-            document.getElementById('surveyTab').classList.add('tab-active');
-            console.log('Survey section shown');
-            loadSurveyStatus(); // Check if user has already submitted
-        }
+    console.log('Switching to section:', sectionName);
+    
+    // Hide all sections
+    document.getElementById('resourcesSection').classList.add('hidden');
+    document.getElementById('lessonsSection').classList.add('hidden');
+    document.getElementById('surveySection').classList.add('hidden');
+    document.getElementById('projectSection').classList.add('hidden'); // Add this line
+    
+    // Remove active state from all tabs
+    document.getElementById('resourcesTab').classList.remove('tab-active');
+    document.getElementById('resourcesTab').classList.add('tab-inactive');
+    document.getElementById('lessonsTab').classList.remove('tab-active');
+    document.getElementById('lessonsTab').classList.add('tab-inactive');
+    document.getElementById('surveyTab').classList.remove('tab-active');
+    document.getElementById('surveyTab').classList.add('tab-inactive');
+    document.getElementById('projectTab').classList.remove('tab-active'); // Add this line
+    document.getElementById('projectTab').classList.add('tab-inactive');  // Add this line
+    
+    // Show selected section and activate tab
+    if (sectionName === 'resources') {
+        document.getElementById('resourcesSection').classList.remove('hidden');
+        document.getElementById('resourcesTab').classList.remove('tab-inactive');
+        document.getElementById('resourcesTab').classList.add('tab-active');
+        console.log('Resources section shown');
+    } else if (sectionName === 'lessons') {
+        document.getElementById('lessonsSection').classList.remove('hidden');
+        document.getElementById('lessonsTab').classList.remove('tab-inactive');
+        document.getElementById('lessonsTab').classList.add('tab-active');
+        console.log('Lessons section shown');
+    } else if (sectionName === 'survey') {
+        document.getElementById('surveySection').classList.remove('hidden');
+        document.getElementById('surveyTab').classList.remove('tab-inactive');
+        document.getElementById('surveyTab').classList.add('tab-active');
+        console.log('Survey section shown');
+        loadSurveyStatus(); // Check if user has already submitted
+    } else if (sectionName === 'project') { // Add this condition
+        document.getElementById('projectSection').classList.remove('hidden');
+        document.getElementById('projectTab').classList.remove('tab-inactive');
+        document.getElementById('projectTab').classList.add('tab-active');
+        console.log('Project section shown');
+        loadUserProject(); // Load user's project data
     }
+}
 
     function initializeTabs() {
-        const resourcesTab = document.getElementById('resourcesTab');
-        const lessonsTab = document.getElementById('lessonsTab');
-        const surveyTab = document.getElementById('surveyTab');
-        
-        // Clear any existing listeners
-        resourcesTab.replaceWith(resourcesTab.cloneNode(true));
-        lessonsTab.replaceWith(lessonsTab.cloneNode(true));
-        surveyTab.replaceWith(surveyTab.cloneNode(true));
-        
-        // Get fresh references
-        const freshResourcesTab = document.getElementById('resourcesTab');
-        const freshLessonsTab = document.getElementById('lessonsTab');
-        const freshSurveyTab = document.getElementById('surveyTab');
-        
-        freshResourcesTab.addEventListener('click', () => showSection('resources'));
-        freshLessonsTab.addEventListener('click', () => showSection('lessons'));
-        freshSurveyTab.addEventListener('click', () => showSection('survey'));
-        
-        console.log('Tabs initialized successfully');
-    }
+    const resourcesTab = document.getElementById('resourcesTab');
+    const lessonsTab = document.getElementById('lessonsTab');
+    const surveyTab = document.getElementById('surveyTab');
+    const projectTab = document.getElementById('projectTab'); // Add this line
+    
+    // Clear any existing listeners
+    resourcesTab.replaceWith(resourcesTab.cloneNode(true));
+    lessonsTab.replaceWith(lessonsTab.cloneNode(true));
+    surveyTab.replaceWith(surveyTab.cloneNode(true));
+    projectTab.replaceWith(projectTab.cloneNode(true)); // Add this line
+    
+    // Get fresh references
+    const freshResourcesTab = document.getElementById('resourcesTab');
+    const freshLessonsTab = document.getElementById('lessonsTab');
+    const freshSurveyTab = document.getElementById('surveyTab');
+    const freshProjectTab = document.getElementById('projectTab'); // Add this line
+    
+    freshResourcesTab.addEventListener('click', () => showSection('resources'));
+    freshLessonsTab.addEventListener('click', () => showSection('lessons'));
+    freshSurveyTab.addEventListener('click', () => showSection('survey'));
+    freshProjectTab.addEventListener('click', () => showSection('project')); // Add this line
+    
+    console.log('Tabs initialized successfully');
+}
 
     // Resources Management
     async function loadResources() {
@@ -1551,6 +2015,407 @@
             }, 300);
         }, 3000);
     }
+
+
+// Project Submission Functions
+ 
+
+async function loadUserProject() {
+    try {
+        // Check if we're on the project section
+        const projectSection = document.getElementById('projectSection');
+        if (!projectSection || projectSection.classList.contains('hidden')) {
+            return;
+        }
+        
+        showProjectLoading();
+        
+        if (!currentUser) {
+            showNotification('Please login to submit a project', 'error');
+            hideProjectLoading();
+            return;
+        }
+        
+        // Load user's project data
+        const response = await fetch(`/api/user/project-submission/${encodeURIComponent(currentUser.email)}`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        console.log('Project data loaded:', result);
+        
+        if (result.success) {
+            if (result.hasSubmission) {
+                userProject = result.data;
+                console.log('User has existing project:', userProject);
+                displayExistingProject();
+            } else {
+                userProject = null;
+                console.log('User has no project yet');
+                displayEmptyProjectForm();
+            }
+        } else {
+            throw new Error(result.message);
+        }
+        
+        hideProjectLoading();
+        
+        // Initialize form event listeners (only if not already initialized)
+        initializeProjectForm();
+    } catch (error) {
+        console.error('Error loading project:', error);
+        showNotification('Failed to load project data: ' + error.message, 'error');
+        hideProjectLoading();
+    }
+}
+
+function displayExistingProject() {
+    if (!userProject) return;
+    
+    console.log('Displaying existing project:', userProject);
+    
+    // Update form fields only if elements exist
+    const projectIdField = document.getElementById('projectId');
+    const isUpdateField = document.getElementById('isUpdate');
+    const projectTitleField = document.getElementById('projectTitle');
+    const githubRepoField = document.getElementById('githubRepo');
+    const hostedSiteField = document.getElementById('hostedSite');
+    const submitButtonText = document.getElementById('submitButtonText');
+    const noProjectMessage = document.getElementById('noProjectMessage');
+    const hasProjectMessage = document.getElementById('hasProjectMessage');
+    
+    if (projectIdField) projectIdField.value = userProject._id || '';
+    if (isUpdateField) isUpdateField.value = 'true';
+    if (projectTitleField) projectTitleField.value = userProject.projectTitle || '';
+    if (githubRepoField) githubRepoField.value = userProject.githubRepo || '';
+    if (hostedSiteField) hostedSiteField.value = userProject.hostedSite || '';
+    
+    // Update button text if element exists
+    if (submitButtonText) {
+        submitButtonText.textContent = 'Update Project';
+    }
+    
+    // Show/hide status messages if they exist
+    if (noProjectMessage) noProjectMessage.classList.add('hidden');
+    if (hasProjectMessage) hasProjectMessage.classList.remove('hidden');
+    
+    // Update status badge if it exists
+    const statusBadge = document.getElementById('projectStatusBadge');
+    if (statusBadge) {
+        const statusColors = {
+            'submitted': 'bg-blue-100 text-blue-800',
+            'in review': 'bg-yellow-100 text-yellow-800',
+            'approved': 'bg-green-100 text-green-800',
+            'rejected': 'bg-red-100 text-red-800',
+            'needs improvement': 'bg-orange-100 text-orange-800'
+        };
+        
+        const statusText = {
+            'submitted': 'Submitted',
+            'in review': 'In Review',
+            'approved': 'Approved',
+            'rejected': 'Rejected',
+            'needs improvement': 'Needs Improvement'
+        };
+        
+        const status = userProject.status || 'submitted';
+        statusBadge.className = `inline-flex px-4 py-2 rounded-full text-sm font-semibold ${statusColors[status] || 'bg-gray-100 text-gray-800'}`;
+        statusBadge.textContent = statusText[status] || status;
+    }
+    
+    // Update date if element exists
+    const updateDate = document.getElementById('projectUpdateDate');
+    if (updateDate) {
+        const date = new Date(userProject.updatedAt || userProject.submittedAt || Date.now());
+        updateDate.textContent = `Last updated: ${date.toLocaleDateString()}`;
+    }
+    
+    // Show review message if exists
+    const reviewMessageDiv = document.getElementById('projectReviewMessage');
+    const reviewMessageText = document.getElementById('reviewMessageText');
+    if (reviewMessageDiv && reviewMessageText) {
+        if (userProject.reviewMessage) {
+            reviewMessageDiv.classList.remove('hidden');
+            reviewMessageText.textContent = userProject.reviewMessage;
+        } else {
+            reviewMessageDiv.classList.add('hidden');
+        }
+    }
+    
+    // Update preview links
+    updateProjectLinksPreview();
+}
+
+function displayEmptyProjectForm() {
+    console.log('Displaying empty project form');
+    
+    // Clear form fields only if they exist
+    const projectIdField = document.getElementById('projectId');
+    const isUpdateField = document.getElementById('isUpdate');
+    const projectTitleField = document.getElementById('projectTitle');
+    const githubRepoField = document.getElementById('githubRepo');
+    const hostedSiteField = document.getElementById('hostedSite');
+    const submitButtonText = document.getElementById('submitButtonText');
+    const noProjectMessage = document.getElementById('noProjectMessage');
+    const hasProjectMessage = document.getElementById('hasProjectMessage');
+    const reviewMessageDiv = document.getElementById('projectReviewMessage');
+    
+    if (projectIdField) projectIdField.value = '';
+    if (isUpdateField) isUpdateField.value = 'false';
+    if (projectTitleField) projectTitleField.value = '';
+    if (githubRepoField) githubRepoField.value = '';
+    if (hostedSiteField) hostedSiteField.value = '';
+    
+    // Update button text if element exists
+    if (submitButtonText) {
+        submitButtonText.textContent = 'Submit Project';
+    }
+    
+    // Show/hide status messages if they exist
+    if (noProjectMessage) noProjectMessage.classList.remove('hidden');
+    if (hasProjectMessage) hasProjectMessage.classList.add('hidden');
+    if (reviewMessageDiv) reviewMessageDiv.classList.add('hidden');
+    
+    // Clear preview
+    updateProjectLinksPreview();
+}
+
+function initializeProjectForm() {
+    console.log('Initializing project form');
+    
+    // Check if form elements exist
+    const studentNameField = document.getElementById('studentName');
+    const studentEmailField = document.getElementById('studentEmail');
+    const form = document.getElementById('projectForm');
+    const clearBtn = document.getElementById('clearFormBtn');
+    const githubInput = document.getElementById('githubRepo');
+    const hostedInput = document.getElementById('hostedSite');
+    
+    if (!studentNameField || !studentEmailField || !form || !clearBtn || !githubInput || !hostedInput) {
+        console.error('Some project form elements not found');
+        return;
+    }
+    
+    // Set student info
+    if (currentUser) {
+        studentNameField.value = currentUser.displayName || '';
+        studentEmailField.value = currentUser.email || '';
+    }
+    
+    // Remove existing event listeners
+    const newForm = form.cloneNode(true);
+    const newClearBtn = clearBtn.cloneNode(true);
+    
+    form.parentNode.replaceChild(newForm, form);
+    clearBtn.parentNode.replaceChild(newClearBtn, clearBtn);
+    
+    // Get fresh references
+    const freshForm = document.getElementById('projectForm');
+    const freshClearBtn = document.getElementById('clearFormBtn');
+    const freshGithubInput = document.getElementById('githubRepo');
+    const freshHostedInput = document.getElementById('hostedSite');
+    
+    // Clear form function
+    freshClearBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('Clear form clicked');
+        
+        if (userProject) {
+            // If user has a project, just reset to current values
+            displayExistingProject();
+        } else {
+            // If no project, clear everything
+            displayEmptyProjectForm();
+        }
+        showNotification('Form cleared', 'info');
+    });
+    
+    // URL input validation and preview
+    [freshGithubInput, freshHostedInput].forEach(input => {
+        input.addEventListener('input', function() {
+            updateProjectLinksPreview();
+        });
+    });
+    
+    // Form submission
+    freshForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        handleProjectSubmit(e);
+    });
+    
+    console.log('Project form initialized successfully');
+}
+
+function updateProjectLinksPreview() {
+    const githubInput = document.getElementById('githubRepo');
+    const hostedInput = document.getElementById('hostedSite');
+    const previewDiv = document.getElementById('projectLinksPreview');
+    const githubLink = document.getElementById('githubPreview');
+    const hostedLink = document.getElementById('hostedPreview');
+    
+    if (!githubInput || !hostedInput || !previewDiv || !githubLink || !hostedLink) {
+        return;
+    }
+    
+    const githubUrl = githubInput.value.trim();
+    const hostedUrl = hostedInput.value.trim();
+    
+    if (githubUrl || hostedUrl) {
+        previewDiv.classList.remove('hidden');
+        
+        if (githubUrl) {
+            githubLink.href = githubUrl;
+            githubLink.textContent = githubUrl.length > 50 ? githubUrl.substring(0, 50) + '...' : githubUrl;
+        }
+        
+        if (hostedUrl) {
+            hostedLink.href = hostedUrl;
+            hostedLink.textContent = hostedUrl.length > 50 ? hostedUrl.substring(0, 50) + '...' : hostedUrl;
+        }
+    } else {
+        previewDiv.classList.add('hidden');
+    }
+}
+
+async function handleProjectSubmit(event) {
+    event.preventDefault();
+    
+    console.log('Project form submitted');
+    
+    if (!currentUser) {
+        showNotification('Please login to submit a project', 'error');
+        return;
+    }
+    
+    const submitBtn = document.getElementById('submitProjectBtn');
+    const isUpdateField = document.getElementById('isUpdate');
+    
+    if (!submitBtn || !isUpdateField) {
+        showNotification('Form elements not found', 'error');
+        return;
+    }
+    
+    const isUpdate = isUpdateField.value === 'true';
+    
+    // Get form values with fallbacks
+    const projectData = {
+        studentName: document.getElementById('studentName')?.value.trim() || '',
+        studentEmail: document.getElementById('studentEmail')?.value.trim() || '',
+        projectTitle: document.getElementById('projectTitle')?.value.trim() || '',
+        githubRepo: document.getElementById('githubRepo')?.value.trim() || '',
+        hostedSite: document.getElementById('hostedSite')?.value.trim() || ''
+    };
+    
+    console.log('Submitting project data:', projectData);
+    
+    // Validate required fields
+    const requiredFields = ['studentName', 'studentEmail', 'projectTitle', 'githubRepo', 'hostedSite'];
+    for (const field of requiredFields) {
+        if (!projectData[field]) {
+            showNotification(`Please fill in ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`, 'error');
+            return;
+        }
+    }
+    
+    // Validate URLs
+    const urlRegex = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+    if (!urlRegex.test(projectData.githubRepo)) {
+        showNotification('Please enter a valid GitHub repository URL', 'error');
+        return;
+    }
+    
+    if (!urlRegex.test(projectData.hostedSite)) {
+        showNotification('Please enter a valid hosted site URL', 'error');
+        return;
+    }
+    
+    try {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+        
+        let response;
+        let result;
+        
+        if (isUpdate) {
+            const projectId = document.getElementById('projectId')?.value;
+            if (!projectId) {
+                throw new Error('Project ID not found for update');
+            }
+            
+            console.log('Updating project with ID:', projectId);
+            
+            response = await fetch(`/api/user/project-submission/${projectId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(projectData)
+            });
+        } else {
+            console.log('Creating new project');
+            
+            response = await fetch('/api/user/project-submission', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(projectData)
+            });
+        }
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        result = await response.json();
+        
+        console.log('Server response:', result);
+        
+        if (result.success) {
+            userProject = result.data;
+            const message = result.message || (isUpdate ? 'Project updated successfully!' : 'Project submitted successfully!');
+            showNotification(message, 'success');
+            
+            // Only try to update display if we're on the project section
+            const projectSection = document.getElementById('projectSection');
+            if (projectSection && !projectSection.classList.contains('hidden')) {
+                displayExistingProject();
+                updateProjectLinksPreview();
+            }
+        } else {
+            throw new Error(result.message || 'Failed to submit project');
+        }
+    } catch (error) {
+        console.error('Error submitting project:', error);
+        showNotification('Failed to submit project: ' + error.message, 'error');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<i class="fas fa-paper-plane mr-2"></i>${isUpdate ? 'Update Project' : 'Submit Project'}`;
+    }
+}
+
+function showProjectLoading() {
+    const loadingDiv = document.getElementById('projectLoading');
+    const statusMessage = document.getElementById('projectStatusMessage');
+    const form = document.getElementById('projectForm');
+    
+    if (loadingDiv) loadingDiv.classList.remove('hidden');
+    if (statusMessage) statusMessage.classList.add('hidden');
+    if (form) form.classList.add('hidden');
+}
+
+function hideProjectLoading() {
+    const loadingDiv = document.getElementById('projectLoading');
+    const statusMessage = document.getElementById('projectStatusMessage');
+    const form = document.getElementById('projectForm');
+    
+    if (loadingDiv) loadingDiv.classList.add('hidden');
+    if (statusMessage) statusMessage.classList.remove('hidden');
+    if (form) form.classList.remove('hidden');
+}
 
     // Initialize animations when page loads
     document.addEventListener('DOMContentLoaded', function() {

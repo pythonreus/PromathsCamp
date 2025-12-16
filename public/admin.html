@@ -32,6 +32,11 @@
         -webkit-line-clamp: 3;
         -webkit-box-orient: vertical;
     }
+
+    /* Modal styling */
+    .modal-backdrop {
+        backdrop-filter: blur(4px);
+    }
 </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -73,6 +78,12 @@
                 <button id="surveysTab" onclick="showSection('surveys')" 
                     class="px-6 py-4 font-semibold text-gray-600 hover:text-gray-800 transition-colors duration-200">
                     <i class="fas fa-chart-bar mr-2"></i>Survey Results
+                </button>
+
+                <!-- Add this button to the navigation tabs section -->
+                <button id="projectsTab" onclick="showSection('projects')" 
+                    class="px-6 py-4 font-semibold text-gray-600 hover:text-gray-800 transition-colors duration-200">
+                    <i class="fas fa-code mr-2"></i>Project Submissions
                 </button>
             </div>
         </div>
@@ -495,51 +506,198 @@
         </div>
     </div>
 </div>
+
+
+
+
+    <!-- Project Submissions Section -->
+    <div id="projectsSection" class="hidden">
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-dark-blue mb-2">Project Submissions</h1>
+            <p class="text-gray-600">Review and manage student project submissions</p>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-accent">
+                <div class="text-2xl font-bold text-dark-blue" id="totalProjects">0</div>
+                <div class="text-gray-600">Total Submissions</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+                <div class="text-2xl font-bold text-dark-blue" id="approvedProjects">0</div>
+                <div class="text-gray-600">Approved</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-yellow-500">
+                <div class="text-2xl font-bold text-dark-blue" id="inReviewProjects">0</div>
+                <div class="text-gray-600">In Review</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-red-500">
+                <div class="text-2xl font-bold text-dark-blue" id="rejectedProjects">0</div>
+                <div class="text-gray-600">Rejected</div>
+            </div>
+        </div>
+
+        <!-- Search and Filter Controls -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex flex-col md:flex-row gap-4 items-center">
+                <div class="flex-1 w-full md:w-auto">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                    <input type="text" id="projectSearch" placeholder="Search by student name, email, or project title..."
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Status</label>
+                    <select id="projectStatusFilter" class="w-full md:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent">
+                        <option value="">All Status</option>
+                        <option value="submitted">Submitted</option>
+                        <option value="in review">In Review</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="needs improvement">Needs Improvement</option>
+                    </select>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="refreshProjects()" class="bg-accent hover:bg-light-blue text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Projects Table -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project Details</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Links</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="projectsTable">
+                        <!-- Projects will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Loading State -->
+            <div id="projectsLoading" class="p-8 text-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto"></div>
+                <p class="text-gray-600 mt-4">Loading project submissions...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="projectsEmpty" class="hidden p-8 text-center">
+                <i class="fas fa-code text-gray-400 text-6xl mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No project submissions yet</h3>
+                <p class="text-gray-600">When students submit their projects, they will appear here.</p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Review Modal -->
+<div id="reviewModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-lg bg-white">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold text-dark-blue">Review Project Submission</h3>
+            <button onclick="closeReviewModal()" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+        </div>
+        
+        <div class="mb-6">
+            <h4 class="font-semibold text-gray-700 mb-2">Student Information</h4>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm text-gray-600">Name</label>
+                    <p id="modalStudentName" class="font-medium"></p>
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-600">Email</label>
+                    <p id="modalStudentEmail" class="font-medium text-accent"></p>
+                </div>
+            </div>
+            
+            <h4 class="font-semibold text-gray-700 mb-2">Project Information</h4>
+            <div class="mb-4">
+                <label class="block text-sm text-gray-600">Project Title</label>
+                <p id="modalProjectTitle" class="font-medium"></p>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm text-gray-600">GitHub Repository</label>
+                    <a id="modalGithubRepo" target="_blank" class="text-accent hover:underline text-sm break-all"></a>
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-600">Hosted Site</label>
+                    <a id="modalHostedSite" target="_blank" class="text-accent hover:underline text-sm break-all"></a>
+                </div>
+            </div>
+        </div>
+        
+        <form id="reviewForm" class="space-y-4">
+            <input type="hidden" id="modalSubmissionId">
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Status *</label>
+                <select id="modalStatus" required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent">
+                    <option value="submitted">Submitted</option>
+                    <option value="in review">In Review</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="needs improvement">Needs Improvement</option>
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Review Message</label>
+                <textarea id="modalReviewMessage" rows="4"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent"
+                    placeholder="Add feedback for the student..."></textarea>
+                <p class="text-xs text-gray-500 mt-1">This message will be visible to the student.</p>
+            </div>
+            
+            <div class="flex justify-end gap-3 pt-4 border-t">
+                <button type="button" onclick="closeReviewModal()"
+                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                    Cancel
+                </button>
+                <button type="submit"
+                    class="bg-accent hover:bg-light-blue text-white px-6 py-2 rounded-lg transition-colors duration-200">
+                    Update Review
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
     </div>
 
     <script>
+        
+
         // Data storage
         let allRegistrations = [];
         let resources = [];
         let lessons = [];
         let submissions = [];
-        // Add to existing data storage
-let surveys = [];
-let surveyStats = {};
+        let surveys = [];
+        let surveyStats = {};
+        let projectSubmissions = []; // Add this line
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             loadRegistrations();
         });
 
-        // // Tab Navigation
-        // function showSection(sectionName) {
-        //     // Hide all sections
-        //     document.getElementById('registrationsSection').classList.add('hidden');
-        //     document.getElementById('resourcesSection').classList.add('hidden');
-        //     document.getElementById('lessonsSection').classList.add('hidden');
-        //     document.getElementById('submissionsSection').classList.add('hidden');
-
-        //     // Remove active state from all tabs
-        //     document.getElementById('registrationsTab').classList.remove('border-accent', 'text-accent');
-        //     document.getElementById('resourcesTab').classList.remove('border-accent', 'text-accent');
-        //     document.getElementById('lessonsTab').classList.remove('border-accent', 'text-accent');
-        //     document.getElementById('submissionsTab').classList.remove('border-accent', 'text-accent');
-
-        //     // Show selected section and activate tab
-        //     document.getElementById(sectionName + 'Section').classList.remove('hidden');
-        //     document.getElementById(sectionName + 'Tab').classList.add('border-accent', 'text-accent');
-
-        //     // Load data for the section
-        //     if (sectionName === 'resources') {
-        //         loadResources();
-        //     } else if (sectionName === 'lessons') {
-        //         loadLessons();
-        //     } else if (sectionName === 'submissions') {
-        //         loadSubmissions();
-        //     }
-        // }
-
+       
         // new addition
         // Enhanced escapeHtml function
 function escapeHtml(text) {
@@ -554,40 +712,9 @@ function escapeHtml(text) {
 }
 
 
-        // Tab Navigation
-// async function showSection(sectionName) {
-//     // Hide all sections
-//     document.getElementById('registrationsSection').classList.add('hidden');
-//     document.getElementById('resourcesSection').classList.add('hidden');
-//     document.getElementById('lessonsSection').classList.add('hidden');
-//     document.getElementById('submissionsSection').classList.add('hidden');
+       
 
-//     // Remove active state from all tabs
-//     document.getElementById('registrationsTab').classList.remove('border-accent', 'text-accent');
-//     document.getElementById('resourcesTab').classList.remove('border-accent', 'text-accent');
-//     document.getElementById('lessonsTab').classList.remove('border-accent', 'text-accent');
-//     document.getElementById('submissionsTab').classList.remove('border-accent', 'text-accent');
-
-//     // Show selected section and activate tab
-//     document.getElementById(sectionName + 'Section').classList.remove('hidden');
-//     document.getElementById(sectionName + 'Tab').classList.add('border-accent', 'text-accent');
-
-//     // Load data for the section
-//     if (sectionName === 'resources') {
-//         await loadResources();
-//     } else if (sectionName === 'lessons') {
-//         await loadLessons();
-//     } else if (sectionName === 'submissions') {
-//         // First load lessons to populate the filter dropdown
-//         if (lessons.length === 0) {
-//             await loadLessons();
-//         }
-//         // Then load submissions
-//         await loadSubmissions();
-//     }
-// }
-
-// Update showSection function
+// Update showSection function to include projects
 async function showSection(sectionName) {
     // Hide all sections
     document.getElementById('registrationsSection').classList.add('hidden');
@@ -595,6 +722,7 @@ async function showSection(sectionName) {
     document.getElementById('lessonsSection').classList.add('hidden');
     document.getElementById('submissionsSection').classList.add('hidden');
     document.getElementById('surveysSection').classList.add('hidden');
+    document.getElementById('projectsSection').classList.add('hidden'); // Add this line
 
     // Remove active state from all tabs
     document.getElementById('registrationsTab').classList.remove('border-accent', 'text-accent');
@@ -602,6 +730,7 @@ async function showSection(sectionName) {
     document.getElementById('lessonsTab').classList.remove('border-accent', 'text-accent');
     document.getElementById('submissionsTab').classList.remove('border-accent', 'text-accent');
     document.getElementById('surveysTab').classList.remove('border-accent', 'text-accent');
+    document.getElementById('projectsTab').classList.remove('border-accent', 'text-accent'); // Add this line
 
     // Show selected section and activate tab
     document.getElementById(sectionName + 'Section').classList.remove('hidden');
@@ -619,6 +748,8 @@ async function showSection(sectionName) {
         await loadSubmissions();
     } else if (sectionName === 'surveys') {
         await loadSurveys();
+    } else if (sectionName === 'projects') { // Add this condition
+        await loadProjects();
     }
 }
 
@@ -803,63 +934,7 @@ async function showSection(sectionName) {
             }
         }
 
-        // function displayLessons() {
-        //     const lessonsList = document.getElementById('lessonsList');
-        //     const emptyState = document.getElementById('lessonsEmpty');
-        //     const loadingState = document.getElementById('lessonsLoading');
-
-        //     loadingState.classList.add('hidden');
-
-        //     if (lessons.length === 0) {
-        //         lessonsList.innerHTML = '';
-        //         emptyState.classList.remove('hidden');
-        //         return;
-        //     }
-
-        //     emptyState.classList.add('hidden');
-        //     lessonsList.innerHTML = lessons.map(lesson => `
-        //         <div class="p-6">
-        //             <div class="flex justify-between items-start mb-4">
-        //                 <div class="flex-1">
-        //                     <h3 class="text-lg font-semibold text-dark-blue mb-2">${lesson.title}</h3>
-        //                     <div class="flex items-center gap-4 text-sm text-gray-600 mb-2">
-        //                         <span class="flex items-center gap-1">
-        //                             <i class="fas fa-tasks"></i>
-        //                             ${lesson.projectTitle}
-        //                         </span>
-        //                         ${lesson.dueDate ? `<span class="flex items-center gap-1">
-        //                             <i class="fas fa-calendar"></i>
-        //                             Due: ${new Date(lesson.dueDate).toLocaleDateString()}
-        //                         </span>` : ''}
-        //                         <span class="flex items-center gap-1 ${lesson.isActive ? 'text-green-600' : 'text-gray-400'}">
-        //                             <i class="fas fa-circle"></i>
-        //                             ${lesson.isActive ? 'Active' : 'Inactive'}
-        //                         </span>
-        //                     </div>
-        //                 </div>
-        //                 <div class="flex gap-2">
-        //                     <button onclick="toggleLesson('${lesson._id}')" class="text-${lesson.isActive ? 'orange' : 'green'}-600 hover:text-${lesson.isActive ? 'orange' : 'green'}-800">
-        //                         <i class="fas fa-${lesson.isActive ? 'pause' : 'play'}"></i>
-        //                     </button>
-        //                     <button onclick="deleteLesson('${lesson._id}')" class="text-red-600 hover:text-red-800">
-        //                         <i class="fas fa-trash"></i>
-        //                     </button>
-        //                 </div>
-        //             </div>
-        //             <div class="grid md:grid-cols-2 gap-4">
-        //                 <div>
-        //                     <h4 class="font-semibold text-gray-700 mb-2">Lesson Content:</h4>
-        //                     <div class="bg-gray-50 p-3 rounded text-sm whitespace-pre-wrap">${lesson.content}</div>
-        //                 </div>
-        //                 <div>
-        //                     <h4 class="font-semibold text-gray-700 mb-2">Project Instructions:</h4>
-        //                     <div class="bg-gray-50 p-3 rounded text-sm whitespace-pre-wrap">${lesson.projectInstructions}</div>
-        //                 </div>
-        //             </div>
-        //             <p class="text-sm text-gray-500 mt-3">Created: ${new Date(lesson.createdAt).toLocaleDateString()}</p>
-        //         </div>
-        //     `).join('');
-        // }
+       
 
         function displayLessons() {
     const lessonsList = document.getElementById('lessonsList');
@@ -1739,6 +1814,346 @@ function exportSurveysCSV() {
     a.download = `promaths-surveys-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
+}
+
+
+
+// Project Submissions Management
+async function loadProjects() {
+    try {
+        showProjectsLoading();
+        
+        // Clear any existing search/filter
+        document.getElementById('projectSearch').value = '';
+        document.getElementById('projectStatusFilter').value = '';
+        
+        const response = await fetch('/api/admin/project-submissions');
+        const result = await response.json();
+        
+        if (result.success) {
+            projectSubmissions = result.data;
+            displayProjects();
+            updateProjectStats();
+        } else {
+            throw new Error(result.message);
+        }
+    } catch (error) {
+        console.error('Error loading project submissions:', error);
+        showNotification('Failed to load project submissions', 'error');
+    }
+}
+
+function displayProjects() {
+    const tableBody = document.getElementById('projectsTable');
+    const loadingState = document.getElementById('projectsLoading');
+    const emptyState = document.getElementById('projectsEmpty');
+
+    loadingState.classList.add('hidden');
+
+    if (projectSubmissions.length === 0) {
+        tableBody.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+    }
+
+    emptyState.classList.add('hidden');
+    
+    tableBody.innerHTML = projectSubmissions.map(project => {
+        const statusColors = {
+            'submitted': 'bg-blue-100 text-blue-800',
+            'in review': 'bg-yellow-100 text-yellow-800',
+            'approved': 'bg-green-100 text-green-800',
+            'rejected': 'bg-red-100 text-red-800',
+            'needs improvement': 'bg-orange-100 text-orange-800'
+        };
+        
+        const statusIcon = {
+            'submitted': 'fa-paper-plane',
+            'in review': 'fa-eye',
+            'approved': 'fa-check-circle',
+            'rejected': 'fa-times-circle',
+            'needs improvement': 'fa-exclamation-circle'
+        };
+        
+        return `
+            <tr class="hover:bg-gray-50 transition-colors duration-150">
+                <td class="px-6 py-4">
+                    <div class="text-sm font-medium text-gray-900">${project.studentName}</div>
+                    <div class="text-sm text-gray-500">${project.studentEmail}</div>
+                </td>
+                <td class="px-6 py-4">
+                    <div class="text-sm font-semibold text-dark-blue mb-1">${project.projectTitle}</div>
+                    ${project.reviewMessage ? `
+                        <div class="text-xs text-gray-600 mt-2 max-h-16 overflow-y-auto">
+                            <div class="font-medium text-gray-500 mb-1">Last Review:</div>
+                            ${project.reviewMessage}
+                        </div>
+                    ` : ''}
+                </td>
+                <td class="px-6 py-4">
+                    <div class="space-y-1">
+                        <div>
+                            <a href="${project.githubRepo}" target="_blank" 
+                                class="text-sm text-accent hover:underline flex items-center gap-1">
+                                <i class="fab fa-github"></i>
+                                <span class="truncate max-w-xs">GitHub Repository</span>
+                            </a>
+                        </div>
+                        <div>
+                            <a href="${project.hostedSite}" target="_blank" 
+                                class="text-sm text-accent hover:underline flex items-center gap-1">
+                                <i class="fas fa-globe"></i>
+                                <span class="truncate max-w-xs">Hosted Site</span>
+                            </a>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[project.status] || 'bg-gray-100 text-gray-800'}">
+                        <i class="fas ${statusIcon[project.status] || 'fa-question-circle'} mr-1"></i>
+                        ${project.status.charAt(0).toUpperCase() + project.status.slice(1)}
+                    </span>
+                    ${project.updatedAt && project.submittedAt !== project.updatedAt ? `
+                        <div class="text-xs text-gray-500 mt-1">
+                            Updated: ${new Date(project.updatedAt).toLocaleDateString()}
+                        </div>
+                    ` : ''}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    ${new Date(project.submittedAt).toLocaleDateString()}
+                    <div class="text-xs text-gray-400">
+                        ${new Date(project.submittedAt).toLocaleTimeString()}
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button onclick="openReviewModal('${project._id}')"
+                        class="text-accent hover:text-light-blue transition-colors duration-200 flex items-center gap-1">
+                        <i class="fas fa-edit"></i>
+                        Review
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function updateProjectStats() {
+    if (projectSubmissions.length === 0) {
+        document.getElementById('totalProjects').textContent = '0';
+        document.getElementById('approvedProjects').textContent = '0';
+        document.getElementById('inReviewProjects').textContent = '0';
+        document.getElementById('rejectedProjects').textContent = '0';
+        return;
+    }
+    
+    document.getElementById('totalProjects').textContent = projectSubmissions.length;
+    document.getElementById('approvedProjects').textContent = projectSubmissions.filter(p => p.status === 'approved').length;
+    document.getElementById('inReviewProjects').textContent = projectSubmissions.filter(p => p.status === 'in review').length;
+    document.getElementById('rejectedProjects').textContent = projectSubmissions.filter(p => p.status === 'rejected').length;
+}
+
+function showProjectsLoading() {
+    document.getElementById('projectsLoading').classList.remove('hidden');
+    document.getElementById('projectsEmpty').classList.add('hidden');
+    document.getElementById('projectsTable').innerHTML = '';
+}
+
+function refreshProjects() {
+    loadProjects();
+}
+
+// Review Modal Functions
+function openReviewModal(projectId) {
+    const project = projectSubmissions.find(p => p._id === projectId);
+    if (!project) return;
+    
+    // Populate modal fields
+    document.getElementById('modalSubmissionId').value = project._id;
+    document.getElementById('modalStudentName').textContent = project.studentName;
+    document.getElementById('modalStudentEmail').textContent = project.studentEmail;
+    document.getElementById('modalProjectTitle').textContent = project.projectTitle;
+    document.getElementById('modalGithubRepo').textContent = project.githubRepo;
+    document.getElementById('modalGithubRepo').href = project.githubRepo;
+    document.getElementById('modalHostedSite').textContent = project.hostedSite;
+    document.getElementById('modalHostedSite').href = project.hostedSite;
+    document.getElementById('modalStatus').value = project.status;
+    document.getElementById('modalReviewMessage').value = project.reviewMessage || '';
+    
+    // Show modal
+    document.getElementById('reviewModal').classList.remove('hidden');
+}
+
+function closeReviewModal() {
+    document.getElementById('reviewModal').classList.add('hidden');
+}
+
+// Review form submission
+document.getElementById('reviewForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    try {
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Updating...';
+        submitBtn.disabled = true;
+        
+        const submissionId = document.getElementById('modalSubmissionId').value;
+        const reviewData = {
+            status: document.getElementById('modalStatus').value,
+            reviewMessage: document.getElementById('modalReviewMessage').value
+        };
+        
+        const response = await fetch(`/api/admin/project-submissions/${submissionId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(reviewData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            closeReviewModal();
+            await loadProjects();
+            showNotification('Project review updated successfully!', 'success');
+        } else {
+            throw new Error(result.message);
+        }
+    } catch (error) {
+        console.error('Error updating project review:', error);
+        showNotification('Failed to update review: ' + error.message, 'error');
+    } finally {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }
+});
+
+// Search and filter functionality
+document.getElementById('projectSearch').addEventListener('input', function() {
+    filterProjects();
+});
+
+document.getElementById('projectStatusFilter').addEventListener('change', function() {
+    filterProjects();
+});
+
+function filterProjects() {
+    const searchTerm = document.getElementById('projectSearch').value.toLowerCase();
+    const statusFilter = document.getElementById('projectStatusFilter').value;
+    
+    let filtered = projectSubmissions;
+    
+    // Apply search filter
+    if (searchTerm) {
+        filtered = filtered.filter(project => 
+            project.studentName.toLowerCase().includes(searchTerm) ||
+            project.studentEmail.toLowerCase().includes(searchTerm) ||
+            project.projectTitle.toLowerCase().includes(searchTerm) ||
+            (project.reviewMessage && project.reviewMessage.toLowerCase().includes(searchTerm))
+        );
+    }
+    
+    // Apply status filter
+    if (statusFilter) {
+        filtered = filtered.filter(project => project.status === statusFilter);
+    }
+    
+    // Display filtered results
+    displayFilteredProjects(filtered);
+}
+
+function displayFilteredProjects(filteredProjects) {
+    const tableBody = document.getElementById('projectsTable');
+    const emptyState = document.getElementById('projectsEmpty');
+    
+    if (filteredProjects.length === 0) {
+        tableBody.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+    }
+    
+    emptyState.classList.add('hidden');
+    
+    // Same display logic as displayProjects but with filtered array
+    tableBody.innerHTML = filteredProjects.map(project => {
+        const statusColors = {
+            'submitted': 'bg-blue-100 text-blue-800',
+            'in review': 'bg-yellow-100 text-yellow-800',
+            'approved': 'bg-green-100 text-green-800',
+            'rejected': 'bg-red-100 text-red-800',
+            'needs improvement': 'bg-orange-100 text-orange-800'
+        };
+        
+        const statusIcon = {
+            'submitted': 'fa-paper-plane',
+            'in review': 'fa-eye',
+            'approved': 'fa-check-circle',
+            'rejected': 'fa-times-circle',
+            'needs improvement': 'fa-exclamation-circle'
+        };
+        
+        return `
+            <tr class="hover:bg-gray-50 transition-colors duration-150">
+                <td class="px-6 py-4">
+                    <div class="text-sm font-medium text-gray-900">${project.studentName}</div>
+                    <div class="text-sm text-gray-500">${project.studentEmail}</div>
+                </td>
+                <td class="px-6 py-4">
+                    <div class="text-sm font-semibold text-dark-blue mb-1">${project.projectTitle}</div>
+                    ${project.reviewMessage ? `
+                        <div class="text-xs text-gray-600 mt-2 max-h-16 overflow-y-auto">
+                            <div class="font-medium text-gray-500 mb-1">Last Review:</div>
+                            ${project.reviewMessage}
+                        </div>
+                    ` : ''}
+                </td>
+                <td class="px-6 py-4">
+                    <div class="space-y-1">
+                        <div>
+                            <a href="${project.githubRepo}" target="_blank" 
+                                class="text-sm text-accent hover:underline flex items-center gap-1">
+                                <i class="fab fa-github"></i>
+                                <span class="truncate max-w-xs">GitHub Repository</span>
+                            </a>
+                        </div>
+                        <div>
+                            <a href="${project.hostedSite}" target="_blank" 
+                                class="text-sm text-accent hover:underline flex items-center gap-1">
+                                <i class="fas fa-globe"></i>
+                                <span class="truncate max-w-xs">Hosted Site</span>
+                            </a>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[project.status] || 'bg-gray-100 text-gray-800'}">
+                        <i class="fas ${statusIcon[project.status] || 'fa-question-circle'} mr-1"></i>
+                        ${project.status.charAt(0).toUpperCase() + project.status.slice(1)}
+                    </span>
+                    ${project.updatedAt && project.submittedAt !== project.updatedAt ? `
+                        <div class="text-xs text-gray-500 mt-1">
+                            Updated: ${new Date(project.updatedAt).toLocaleDateString()}
+                        </div>
+                    ` : ''}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    ${new Date(project.submittedAt).toLocaleDateString()}
+                    <div class="text-xs text-gray-400">
+                        ${new Date(project.submittedAt).toLocaleTimeString()}
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button onclick="openReviewModal('${project._id}')"
+                        class="text-accent hover:text-light-blue transition-colors duration-200 flex items-center gap-1">
+                        <i class="fas fa-edit"></i>
+                        Review
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
 }
     </script>
 </body>

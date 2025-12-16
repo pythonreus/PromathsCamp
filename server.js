@@ -63,6 +63,67 @@ const studentSchema = new mongoose.Schema({
 const Student = mongoose.model('Student', studentSchema);
 
 
+// Project Submission Schema
+const projectSubmissionSchema = new mongoose.Schema({
+    studentName: { 
+        type: String, 
+        required: true,
+        trim: true 
+    },
+    studentEmail: { 
+        type: String, 
+        required: true,
+        trim: true,
+        lowercase: true
+    },
+    projectTitle: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    githubRepo: { 
+        type: String, 
+        required: true,
+        trim: true
+    },
+    hostedSite: { 
+        type: String, 
+        required: true,
+        trim: true
+    },
+    status: { 
+        type: String, 
+        default: 'submitted', 
+        enum: ['submitted', 'in review', 'approved', 'rejected', 'needs improvement']
+    },
+    reviewMessage: {
+        type: String,
+        trim: true,
+        maxlength: 2000,
+        default: null
+    },
+    submittedAt: { 
+        type: Date, 
+        default: Date.now 
+    },
+    updatedAt: { 
+        type: Date, 
+        default: Date.now 
+    }
+});
+
+// Create compound index to prevent duplicates
+projectSubmissionSchema.index({ studentEmail: 1, projectTitle: 1 }, { unique: true });
+
+// Update timestamp on save
+projectSubmissionSchema.pre('save', function(next) {
+    this.updatedAt = Date.now();
+    next();
+});
+
+const ProjectSubmission = mongoose.model('ProjectSubmission', projectSubmissionSchema);
+
+
 // User Schema for Firebase authentication
 const userSchema = new mongoose.Schema({
     firebaseUid: { type: String, required: true, unique: true },
@@ -949,6 +1010,275 @@ app.post('/api/auth/verify', async (req, res) => {
 });
 
 
+// =================== USER PROJECT SUBMISSION ENDPOINTS ===================
+
+// 1. Get user's submission (or return empty template)
+app.get('/api/user/project-submission/:email', async (req, res) => {
+    try {
+        const { email } = req.params;
+        
+        // Find existing submission for this user
+        const submission = await ProjectSubmission.findOne({ 
+            studentEmail: email.toLowerCase() 
+        });
+
+        // If submission exists, return it
+        if (submission) {
+            return res.json({
+                success: true,
+                data: submission,
+                hasSubmission: true
+            });
+        }
+
+        // If no submission exists, return empty template
+        res.json({
+            success: true,
+            data: {
+                studentName: '',
+                studentEmail: email,
+                projectTitle: '',
+                githubRepo: '',
+                hostedSite: '',
+                status: 'not submitted'
+            },
+            hasSubmission: false
+        });
+
+    } catch (error) {
+        console.error('Error fetching user submission:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch project submission',
+            error: error.message
+        });
+    }
+});
+
+// 2. Create or update submission (handles both without duplication)
+app.post('/api/user/project-submission', async (req, res) => {
+    try {
+        const {
+            studentName,
+            studentEmail,
+            projectTitle,
+            githubRepo,
+            hostedSite
+        } = req.body;
+
+        // Validate required fields
+        if (!studentName || !studentEmail || !projectTitle || !githubRepo || !hostedSite) {
+            return res.status(400).json({
+                success: false,
+                message: 'All fields are required'
+            });
+        }
+
+        // Normalize email
+        const normalizedEmail = studentEmail.trim().toLowerCase();
+        
+        // Check if submission already exists for this user
+        const existingSubmission = await ProjectSubmission.findOne({
+            studentEmail: normalizedEmail,
+            projectTitle: projectTitle.trim()
+        });
+
+        let submission;
+        let isNew = false;
+
+        if (existingSubmission) {
+            // Update existing submission
+            existingSubmission.studentName = studentName.trim();
+            existingSubmission.githubRepo = githubRepo.trim();
+            existingSubmission.hostedSite = hostedSite.trim();
+            existingSubmission.status = 'submitted'; // Reset status when updating
+            
+            // Clear review message when user resubmits
+            existingSubmission.reviewMessage = null;
+            
+            submission = await existingSubmission.save();
+        } else {
+            // Create new submission
+            submission = new ProjectSubmission({
+                studentName: studentName.trim(),
+                studentEmail: normalizedEmail,
+                projectTitle: projectTitle.trim(),
+                githubRepo: githubRepo.trim(),
+                hostedSite: hostedSite.trim()
+            });
+            
+            submission = await submission.save();
+            isNew = true;
+        }
+
+        res.json({
+            success: true,
+            message: isNew ? 'Project submitted successfully!' : 'Project updated successfully!',
+            data: submission,
+            isNew: isNew
+        });
+
+    } catch (error) {
+        console.error('Project submission error:', error);
+        
+        // Handle duplicate key errors
+        if (error.code === 11000) {
+            return res.status(409).json({
+                success: false,
+                message: 'A project with this title already exists for your account'
+            });
+        }
+
+        res.status(500).json({
+            success: false,
+            message: 'Failed to submit project',
+            error: error.message
+        });
+    }
+});
+
+// 3. Update submission (explicit update endpoint)
+app.put('/api/user/project-submission/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { studentName, projectTitle, githubRepo, hostedSite } = req.body;
+
+        // Validate required fields
+        if (!studentName || !projectTitle || !githubRepo || !hostedSite) {
+            return res.status(400).json({
+                success: false,
+                message: 'All fields are required'
+            });
+        }
+
+        const submission = await ProjectSubmission.findById(id);
+        
+        if (!submission) {
+            return res.status(404).json({
+                success: false,
+                message: 'Project submission not found'
+            });
+        }
+
+        // Check if trying to change to a title that already exists for this user
+        if (projectTitle.trim() !== submission.projectTitle) {
+            const existingWithTitle = await ProjectSubmission.findOne({
+                studentEmail: submission.studentEmail,
+                projectTitle: projectTitle.trim(),
+                _id: { $ne: id } // Exclude current submission
+            });
+
+            if (existingWithTitle) {
+                return res.status(409).json({
+                    success: false,
+                    message: 'You already have a project with this title'
+                });
+            }
+        }
+
+        // Update submission
+        submission.studentName = studentName.trim();
+        submission.projectTitle = projectTitle.trim();
+        submission.githubRepo = githubRepo.trim();
+        submission.hostedSite = hostedSite.trim();
+        submission.status = 'submitted'; // Reset status
+        submission.reviewMessage = null; // Clear review when user updates
+
+        const updatedSubmission = await submission.save();
+
+        res.json({
+            success: true,
+            message: 'Project updated successfully!',
+            data: updatedSubmission
+        });
+
+    } catch (error) {
+        console.error('Update submission error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to update project',
+            error: error.message
+        });
+    }
+});
+
+
+
+// =================== ADMIN PROJECT SUBMISSION ENDPOINTS ===================
+
+// 1. Get all submissions (no filtering)
+app.get('/api/admin/project-submissions', async (req, res) => {
+    try {
+        const submissions = await ProjectSubmission.find()
+            .sort({ submittedAt: -1 });
+
+        res.json({
+            success: true,
+            count: submissions.length,
+            data: submissions
+        });
+
+    } catch (error) {
+        console.error('Error fetching all project submissions:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch project submissions',
+            error: error.message
+        });
+    }
+});
+
+// 2. Update submission status and review message
+app.put('/api/admin/project-submissions/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status, reviewMessage } = req.body;
+        
+        // Validate status
+        const validStatuses = ['submitted', 'in review', 'approved', 'rejected', 'needs improvement'];
+        if (status && !validStatuses.includes(status)) {
+            return res.status(400).json({
+                success: false,
+                message: `Invalid status. Must be one of: ${validStatuses.join(', ')}`
+            });
+        }
+
+        // Find and update submission
+        const submission = await ProjectSubmission.findById(id);
+        
+        if (!submission) {
+            return res.status(404).json({
+                success: false,
+                message: 'Project submission not found'
+            });
+        }
+
+        // Update fields if provided
+        if (status) submission.status = status;
+        if (reviewMessage !== undefined) {
+            // Allow empty string to clear the review message
+            submission.reviewMessage = reviewMessage ? reviewMessage.trim() : null;
+        }
+
+        const updatedSubmission = await submission.save();
+
+        res.json({
+            success: true,
+            message: 'Submission updated successfully',
+            data: updatedSubmission
+        });
+
+    } catch (error) {
+        console.error('Error updating submission:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to update submission',
+            error: error.message
+        });
+    }
+});
+
+
 // Cleanup: Keep only latest submission per student per lesson
 async function cleanupSubmissions() {
     try {
@@ -980,7 +1310,7 @@ async function cleanupSubmissions() {
     }
 }
 
-//cleanupSubmissions();
+cleanupSubmissions();
 
 
 
