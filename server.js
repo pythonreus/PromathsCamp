@@ -99,7 +99,6 @@ const projectSubmissionSchema = new mongoose.Schema({
     reviewMessage: {
         type: String,
         trim: true,
-        maxlength: 2000,
         default: null
     },
     submittedAt: { 
