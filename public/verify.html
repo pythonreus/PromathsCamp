@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate Verification - Promaths</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .verification-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: #4f46e5;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .verification-status {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .status-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .verified .status-icon {
+            color: #10b981;
+        }
+
+        .not-verified .status-icon {
+            color: #ef4444;
+        }
+
+        .status-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .status-message {
+            color: #6b7280;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .certificate-details {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 30px;
+            border-left: 4px solid #4f46e5;
+        }
+
+        .detail-item {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .detail-label {
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .detail-value {
+            color: #1f2937;
+            text-align: right;
+            max-width: 60%;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4f46e5;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background: #f9fafb;
+            border-top: 1px solid #e5e7eb;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: #4f46e5;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .print-button {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            margin-top: 20px;
+            transition: background 0.3s ease;
+        }
+
+        .print-button:hover {
+            background: #3730a3;
+        }
+
+        .watermark {
+            opacity: 0.03;
+            font-size: 120px;
+            position: absolute;
+            transform: rotate(-45deg);
+            pointer-events: none;
+            font-weight: bold;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .verification-container, .verification-container * {
+                visibility: visible;
+            }
+            .verification-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                box-shadow: none;
+            }
+            .print-button {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="verification-container" id="verificationContainer">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-certificate"></i>
+            </div>
+            <h1>Certificate Verification</h1>
+            <p>Promaths Project Certification</p>
+        </div>
+
+        <div class="content">
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <p>Verifying certificate...</p>
+            </div>
+
+            <div class="verification-status" id="verifiedStatus" style="display: none;">
+                <!-- Verified content will be inserted here -->
+            </div>
+
+            <div class="certificate-details" id="certificateDetails" style="display: none;">
+                <!-- Certificate details will be inserted here -->
+            </div>
+
+            <button class="print-button" onclick="window.print()" id="printButton" style="display: none;">
+                <i class="fas fa-print"></i> Print Verification
+            </button>
+        </div>
+
+        <div class="footer">
+            <p>Powered by <a href="/">Promaths</a> • © 2024 All rights reserved</p>
+            <p>This verification system ensures the authenticity of certificates</p>
+        </div>
+    </div>
+
+    <div class="watermark">VERIFIED</div>
+
+    <script>
+        async function verifyCertificate() {
+            const hash = window.location.pathname.split('/').pop();
+            
+            try {
+                const response = await fetch(`/api/verify/${hash}`);
+                const result = await response.json();
+
+                // Hide loading
+                document.getElementById('loading').style.display = 'none';
+
+                if (result.success && result.verified) {
+                    // Show verified status
+                    const verifiedDiv = document.getElementById('verifiedStatus');
+                    verifiedDiv.className = 'verification-status verified';
+                    verifiedDiv.innerHTML = `
+                        <div class="status-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h2 class="status-title">Certificate Verified</h2>
+                        <p class="status-message">
+                            This certificate has been successfully verified and is authentic.
+                        </p>
+                    `;
+                    verifiedDiv.style.display = 'block';
+
+                    // Show certificate details
+                    const detailsDiv = document.getElementById('certificateDetails');
+                    detailsDiv.innerHTML = `
+                        <h3 style="margin-bottom: 20px; color: #4f46e5;">Certificate Details</h3>
+                        <div class="detail-item">
+                            <span class="detail-label">Certificate ID:</span>
+                            <span class="detail-value">${result.certificateId}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Student Name:</span>
+                            <span class="detail-value">${result.studentName}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Project Title:</span>
+                            <span class="detail-value">${result.projectTitle}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Issued Date:</span>
+                            <span class="detail-value">${new Date(result.issuedDate).toLocaleDateString()}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Verification Date:</span>
+                            <span class="detail-value">${new Date(result.verificationDate).toLocaleString()}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Status:</span>
+                            <span class="detail-value" style="color: #10b981; font-weight: 600;">VALID</span>
+                        </div>
+                    `;
+                    detailsDiv.style.display = 'block';
+
+                    // Show print button
+                    document.getElementById('printButton').style.display = 'block';
+
+                } else {
+                    // Show not verified
+                    const notVerifiedDiv = document.getElementById('verifiedStatus');
+                    notVerifiedDiv.className = 'verification-status not-verified';
+                    notVerifiedDiv.innerHTML = `
+                        <div class="status-icon">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                        <h2 class="status-title">Certificate Not Verified</h2>
+                        <p class="status-message">
+                            ${result.message || 'This certificate could not be verified.'}
+                        </p>
+                        ${result.revokeReason ? `
+                            <p style="color: #ef4444; margin-top: 10px;">
+                                <strong>Reason:</strong> ${result.revokeReason}
+                            </p>
+                        ` : ''}
+                    `;
+                    notVerifiedDiv.style.display = 'block';
+                }
+
+            } catch (error) {
+                console.error('Verification error:', error);
+                document.getElementById('loading').style.display = 'none';
+                
+                const errorDiv = document.getElementById('verifiedStatus');
+                errorDiv.className = 'verification-status not-verified';
+                errorDiv.innerHTML = `
+                    <div class="status-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h2 class="status-title">Verification Error</h2>
+                    <p class="status-message">
+                        There was an error verifying the certificate. Please try again later.
+                    </p>
+                `;
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        // Start verification when page loads
+        document.addEventListener('DOMContentLoaded', verifyCertificate);
+    </script>
+</body>
+</html>

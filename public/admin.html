@@ -85,6 +85,12 @@
                     class="px-6 py-4 font-semibold text-gray-600 hover:text-gray-800 transition-colors duration-200">
                     <i class="fas fa-code mr-2"></i>Project Submissions
                 </button>
+
+                <!-- Add this button to the navigation tabs section -->
+                <button id="certificatesTab" onclick="showSection('certificates')" 
+                    class="px-6 py-4 font-semibold text-gray-600 hover:text-gray-800 transition-colors duration-200">
+                    <i class="fas fa-certificate mr-2"></i>Certificates
+                </button>
             </div>
         </div>
     </div>
@@ -600,6 +606,181 @@
         </div>
     </div>
 
+    <!-- Certificates Section -->
+<div id="certificatesSection" class="hidden">
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold text-dark-blue mb-2">Certificate Management</h1>
+        <p class="text-gray-600">View and manage student certificates</p>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-accent">
+            <div class="text-2xl font-bold text-dark-blue" id="totalCertificates">0</div>
+            <div class="text-gray-600">Total Certificates</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+            <div class="text-2xl font-bold text-dark-blue" id="activeCertificates">0</div>
+            <div class="text-gray-600">Active</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-red-500">
+            <div class="text-2xl font-bold text-dark-blue" id="revokedCertificates">0</div>
+            <div class="text-gray-600">Revoked</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+            <div class="text-2xl font-bold text-dark-blue" id="expiredCertificates">0</div>
+            <div class="text-gray-600">Expired</div>
+        </div>
+    </div>
+
+    <!-- Search and Filter Controls -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div class="flex flex-col md:flex-row gap-4 items-center">
+            <div class="flex-1 w-full md:w-auto">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                <input type="text" id="certificateSearch" placeholder="Search by name, email, or certificate ID..."
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Status</label>
+                <select id="certificateStatusFilter" class="w-full md:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent">
+                    <option value="">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="revoked">Revoked</option>
+                    <option value="expired">Expired</option>
+                </select>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="refreshCertificates()" class="bg-accent hover:bg-light-blue text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh
+                </button>
+                <button onclick="exportCertificatesCSV()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2">
+                    <i class="fas fa-file-csv"></i>
+                    Export CSV
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Certificates Table -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student Information</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Certificate Details</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Verification URL & QR Code</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200" id="certificatesTable">
+                    <!-- Certificates will be populated here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Loading State -->
+        <div id="certificatesLoading" class="p-8 text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto"></div>
+            <p class="text-gray-600 mt-4">Loading certificates...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div id="certificatesEmpty" class="hidden p-8 text-center">
+            <i class="fas fa-certificate text-gray-400 text-6xl mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No certificates yet</h3>
+            <p class="text-gray-600">When certificates are generated, they will appear here.</p>
+        </div>
+    </div>
+
+    <!-- Certificate Details Modal -->
+    <div id="certificateModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-lg bg-white">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-dark-blue">Certificate Details</h3>
+                <button onclick="closeCertificateModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            
+            <div class="mb-6">
+                <h4 class="font-semibold text-gray-700 mb-2">Student Information</h4>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm text-gray-600">Name</label>
+                        <p id="modalCertStudentName" class="font-medium"></p>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600">Email</label>
+                        <p id="modalCertStudentEmail" class="font-medium text-accent"></p>
+                    </div>
+                </div>
+                
+                <h4 class="font-semibold text-gray-700 mb-2">Certificate Information</h4>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm text-gray-600">Certificate ID</label>
+                        <p id="modalCertId" class="font-medium"></p>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600">Verification Hash</label>
+                        <p id="modalVerificationHash" class="font-mono text-sm"></p>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm text-gray-600">Project Title</label>
+                    <p id="modalCertProjectTitle" class="font-medium"></p>
+                </div>
+                
+                <h4 class="font-semibold text-gray-700 mb-2">Verification Links</h4>
+                <div class="space-y-2 mb-4">
+                    <div>
+                        <label class="block text-sm text-gray-600">Verification URL</label>
+                        <div class="flex items-center gap-2">
+                            <a id="modalVerificationUrl" target="_blank" class="text-accent hover:underline text-sm break-all flex-1"></a>
+                            <button onclick="copyToClipboard('modalVerificationUrl')" class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600">QR Code Image URL</label>
+                        <div class="flex items-center gap-2">
+                            <a id="modalQrCodeUrl" target="_blank" class="text-accent hover:underline text-sm break-all flex-1"></a>
+                            <button onclick="copyToClipboard('modalQrCodeUrl')" class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-center my-6">
+                    <div id="qrCodePreview" class="border p-4 rounded-lg">
+                        <!-- QR Code will be displayed here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-end gap-3 pt-4 border-t">
+                <button type="button" onclick="closeCertificateModal()"
+                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                    Close
+                </button>
+                <button onclick="printCertificate()"
+                    class="bg-accent hover:bg-light-blue text-white px-6 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2">
+                    <i class="fas fa-print"></i>
+                    Print Details
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
     <!-- Review Modal -->
 <div id="reviewModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
@@ -714,7 +895,7 @@ function escapeHtml(text) {
 
        
 
-// Update showSection function to include projects
+// Update showSection function to include certificates
 async function showSection(sectionName) {
     // Hide all sections
     document.getElementById('registrationsSection').classList.add('hidden');
@@ -722,7 +903,8 @@ async function showSection(sectionName) {
     document.getElementById('lessonsSection').classList.add('hidden');
     document.getElementById('submissionsSection').classList.add('hidden');
     document.getElementById('surveysSection').classList.add('hidden');
-    document.getElementById('projectsSection').classList.add('hidden'); // Add this line
+    document.getElementById('projectsSection').classList.add('hidden');
+    document.getElementById('certificatesSection').classList.add('hidden'); // Add this line
 
     // Remove active state from all tabs
     document.getElementById('registrationsTab').classList.remove('border-accent', 'text-accent');
@@ -730,7 +912,8 @@ async function showSection(sectionName) {
     document.getElementById('lessonsTab').classList.remove('border-accent', 'text-accent');
     document.getElementById('submissionsTab').classList.remove('border-accent', 'text-accent');
     document.getElementById('surveysTab').classList.remove('border-accent', 'text-accent');
-    document.getElementById('projectsTab').classList.remove('border-accent', 'text-accent'); // Add this line
+    document.getElementById('projectsTab').classList.remove('border-accent', 'text-accent');
+    document.getElementById('certificatesTab').classList.remove('border-accent', 'text-accent'); // Add this line
 
     // Show selected section and activate tab
     document.getElementById(sectionName + 'Section').classList.remove('hidden');
@@ -748,8 +931,10 @@ async function showSection(sectionName) {
         await loadSubmissions();
     } else if (sectionName === 'surveys') {
         await loadSurveys();
-    } else if (sectionName === 'projects') { // Add this condition
+    } else if (sectionName === 'projects') {
         await loadProjects();
+    } else if (sectionName === 'certificates') { // Add this condition
+        await loadCertificates();
     }
 }
 
@@ -2154,6 +2339,562 @@ function displayFilteredProjects(filteredProjects) {
             </tr>
         `;
     }).join('');
+}
+
+
+// Certificates Management
+let certificates = [];
+
+
+
+async function loadCertificates() {
+    try {
+        showCertificatesLoading();
+        
+        const response = await fetch('/api/admin/certificates');
+        const result = await response.json();
+        
+        if (result.success) {
+            certificates = result.data;
+            displayCertificates();
+            updateCertificateStats();
+        } else {
+            throw new Error(result.message);
+        }
+    } catch (error) {
+        console.error('Error loading certificates:', error);
+        showNotification('Failed to load certificates', 'error');
+    }
+}
+
+function displayCertificates() {
+    const tableBody = document.getElementById('certificatesTable');
+    const loadingState = document.getElementById('certificatesLoading');
+    const emptyState = document.getElementById('certificatesEmpty');
+
+    loadingState.classList.add('hidden');
+
+    if (certificates.length === 0) {
+        tableBody.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+    }
+
+    emptyState.classList.add('hidden');
+    
+    // Get the base URL for verification links
+    const baseUrl = window.location.origin;
+    
+    tableBody.innerHTML = certificates.map(certificate => {
+        const verificationUrl = `${baseUrl}/verify/${certificate.verificationHash}`;
+        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(verificationUrl)}`;
+        
+        // Determine status
+        let status = 'active';
+        let statusColor = 'bg-green-100 text-green-800';
+        let statusText = 'Active';
+        
+        if (certificate.isRevoked) {
+            status = 'revoked';
+            statusColor = 'bg-red-100 text-red-800';
+            statusText = 'Revoked';
+        } else if (certificate.expiryDate && new Date() > new Date(certificate.expiryDate)) {
+            status = 'expired';
+            statusColor = 'bg-yellow-100 text-yellow-800';
+            statusText = 'Expired';
+        }
+        
+        return `
+            <tr class="hover:bg-gray-50 transition-colors duration-150">
+                <td class="px-6 py-4">
+                    <div class="text-sm font-medium text-gray-900">${certificate.studentName}</div>
+                    <div class="text-sm text-gray-500">${certificate.studentEmail}</div>
+                </td>
+                <td class="px-6 py-4">
+                    <div class="text-sm font-semibold text-dark-blue mb-1">${certificate.projectTitle}</div>
+                    <div class="text-xs text-gray-500">
+                        <div class="font-mono">ID: ${certificate.certificateId}</div>
+                        <div>Issued: ${new Date(certificate.issuedDate).toLocaleDateString()}</div>
+                        ${certificate.expiryDate ? 
+                            `<div>Expires: ${new Date(certificate.expiryDate).toLocaleDateString()}</div>` : 
+                            `<div>No expiry date</div>`
+                        }
+                    </div>
+                </td>
+                <td class="px-6 py-4">
+                    <div class="space-y-2">
+                        <div>
+                            <div class="text-xs font-medium text-gray-500 mb-1">Verification URL:</div>
+                            <a href="${verificationUrl}" target="_blank" 
+                                class="text-sm text-accent hover:underline break-all block">
+                                ${verificationUrl}
+                            </a>
+                            <div class="flex gap-2 mt-1">
+                                <button onclick="copyToClipboardText('${verificationUrl}')" 
+                                    class="text-xs text-gray-500 hover:text-gray-700">
+                                    <i class="fas fa-copy mr-1"></i>Copy URL
+                                </button>
+                                <button onclick="openCertificateModal('${certificate._id}')" 
+                                    class="text-xs text-gray-500 hover:text-gray-700">
+                                    <i class="fas fa-external-link-alt mr-1"></i>Details
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-xs font-medium text-gray-500 mb-1">QR Code:</div>
+                            <img src="${qrCodeUrl}" alt="QR Code" 
+                                class="w-24 h-24 border rounded-lg p-1 bg-white hover:scale-105 transition-transform cursor-pointer"
+                                onclick="openCertificateModal('${certificate._id}')">
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColor}">
+                        <i class="fas ${status === 'active' ? 'fa-check-circle' : status === 'revoked' ? 'fa-ban' : 'fa-clock'} mr-1"></i>
+                        ${statusText}
+                    </span>
+                    ${certificate.isRevoked && certificate.revokedReason ? `
+                        <div class="text-xs text-gray-500 mt-1">
+                            Reason: ${certificate.revokedReason}
+                        </div>
+                    ` : ''}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    ${new Date(certificate.issuedDate).toLocaleDateString()}
+                    <div class="text-xs text-gray-400">
+                        ${new Date(certificate.issuedDate).toLocaleTimeString()}
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div class="flex flex-col gap-1">
+                        <button onclick="manageCertificate('${certificate._id}', '${status}')"
+                            class="text-accent hover:text-light-blue transition-colors duration-200 flex items-center gap-1 text-xs">
+                            <i class="fas fa-cog"></i>
+                            Manage
+                        </button>
+                        ${certificate.isRevoked ? 
+                            `<button onclick="reinstateCertificate('${certificate._id}')"
+                                class="text-green-600 hover:text-green-800 transition-colors duration-200 flex items-center gap-1 text-xs">
+                                <i class="fas fa-undo"></i>
+                                Reinstate
+                            </button>` :
+                            `<button onclick="revokeCertificate('${certificate._id}')"
+                                class="text-red-600 hover:text-red-800 transition-colors duration-200 flex items-center gap-1 text-xs">
+                                <i class="fas fa-ban"></i>
+                                Revoke
+                            </button>`
+                        }
+                        <button onclick="openCertificateModal('${certificate._id}')"
+                            class="text-blue-600 hover:text-blue-800 transition-colors duration-200 flex items-center gap-1 text-xs">
+                            <i class="fas fa-eye"></i>
+                            View
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function updateCertificateStats() {
+    const total = certificates.length;
+    const active = certificates.filter(c => !c.isRevoked && (!c.expiryDate || new Date() <= new Date(c.expiryDate))).length;
+    const revoked = certificates.filter(c => c.isRevoked).length;
+    const expired = certificates.filter(c => !c.isRevoked && c.expiryDate && new Date() > new Date(c.expiryDate)).length;
+    
+    document.getElementById('totalCertificates').textContent = total;
+    document.getElementById('activeCertificates').textContent = active;
+    document.getElementById('revokedCertificates').textContent = revoked;
+    document.getElementById('expiredCertificates').textContent = expired;
+}
+
+function showCertificatesLoading() {
+    document.getElementById('certificatesLoading').classList.remove('hidden');
+    document.getElementById('certificatesEmpty').classList.add('hidden');
+    document.getElementById('certificatesTable').innerHTML = '';
+}
+
+function refreshCertificates() {
+    loadCertificates();
+}
+
+// Copy to clipboard function
+function copyToClipboardText(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        showNotification('URL copied to clipboard!', 'success');
+    }).catch(err => {
+        console.error('Failed to copy:', err);
+        showNotification('Failed to copy to clipboard', 'error');
+    });
+}
+
+// Certificate management functions
+function manageCertificate(certificateId, currentStatus) {
+    // Open a modal for certificate management
+    const certificate = certificates.find(c => c._id === certificateId);
+    if (!certificate) return;
+    
+    if (currentStatus === 'revoked') {
+        if (confirm(`Do you want to reinstate certificate ${certificate.certificateId}?`)) {
+            reinstateCertificate(certificateId);
+        }
+    } else {
+        const reason = prompt(`Enter reason for revoking certificate ${certificate.certificateId}:`, 'Revoked by administrator');
+        if (reason !== null) {
+            revokeCertificate(certificateId, reason);
+        }
+    }
+}
+
+async function revokeCertificate(certificateId, reason = 'Revoked by administrator') {
+    try {
+        const response = await fetch(`/api/admin/certificates/${certificateId}/revoke`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ reason })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            await loadCertificates();
+            showNotification('Certificate revoked successfully!', 'success');
+        } else {
+            throw new Error(result.message);
+        }
+    } catch (error) {
+        console.error('Error revoking certificate:', error);
+        showNotification('Failed to revoke certificate: ' + error.message, 'error');
+    }
+}
+
+async function reinstateCertificate(certificateId) {
+    try {
+        const response = await fetch(`/api/admin/certificates/${certificateId}/reinstate`, {
+            method: 'PUT'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            await loadCertificates();
+            showNotification('Certificate reinstated successfully!', 'success');
+        } else {
+            throw new Error(result.message);
+        }
+    } catch (error) {
+        console.error('Error reinstating certificate:', error);
+        showNotification('Failed to reinstate certificate: ' + error.message, 'error');
+    }
+}
+
+// Certificate Modal Functions
+function openCertificateModal(certificateId) {
+    const certificate = certificates.find(c => c._id === certificateId);
+    if (!certificate) return;
+    
+    const baseUrl = window.location.origin;
+    const verificationUrl = `${baseUrl}/verify/${certificate.verificationHash}`;
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(verificationUrl)}`;
+    
+    // Populate modal fields
+    document.getElementById('modalCertStudentName').textContent = certificate.studentName;
+    document.getElementById('modalCertStudentEmail').textContent = certificate.studentEmail;
+    document.getElementById('modalCertId').textContent = certificate.certificateId;
+    document.getElementById('modalVerificationHash').textContent = certificate.verificationHash;
+    document.getElementById('modalCertProjectTitle').textContent = certificate.projectTitle;
+    document.getElementById('modalVerificationUrl').textContent = verificationUrl;
+    document.getElementById('modalVerificationUrl').href = verificationUrl;
+    document.getElementById('modalQrCodeUrl').textContent = qrCodeUrl;
+    document.getElementById('modalQrCodeUrl').href = qrCodeUrl;
+    
+    // Display QR code
+    document.getElementById('qrCodePreview').innerHTML = `
+        <img src="${qrCodeUrl}" alt="QR Code" class="w-48 h-48 mx-auto">
+        <p class="text-xs text-center text-gray-500 mt-2">Scan to verify certificate</p>
+    `;
+    
+    // Show modal
+    document.getElementById('certificateModal').classList.remove('hidden');
+}
+
+function closeCertificateModal() {
+    document.getElementById('certificateModal').classList.add('hidden');
+}
+
+function copyToClipboard(elementId) {
+    const element = document.getElementById(elementId);
+    const text = element.textContent || element.href;
+    
+    navigator.clipboard.writeText(text).then(() => {
+        showNotification('Copied to clipboard!', 'success');
+    }).catch(err => {
+        console.error('Failed to copy:', err);
+        showNotification('Failed to copy to clipboard', 'error');
+    });
+}
+
+function printCertificate() {
+    const printContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Certificate Details - ${document.getElementById('modalCertStudentName').textContent}</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 20px; }
+                .header { text-align: center; margin-bottom: 30px; }
+                .section { margin-bottom: 20px; }
+                .label { font-weight: bold; color: #666; }
+                .value { margin-bottom: 10px; }
+                .qr-code { text-align: center; margin: 20px 0; }
+                @media print {
+                    .no-print { display: none; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>Certificate Verification Details</h1>
+                <p>Promaths Coding Bootcamp</p>
+            </div>
+            
+            <div class="section">
+                <h2>Student Information</h2>
+                <div class="value">
+                    <div class="label">Name:</div>
+                    ${document.getElementById('modalCertStudentName').textContent}
+                </div>
+                <div class="value">
+                    <div class="label">Email:</div>
+                    ${document.getElementById('modalCertStudentEmail').textContent}
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>Certificate Information</h2>
+                <div class="value">
+                    <div class="label">Certificate ID:</div>
+                    ${document.getElementById('modalCertId').textContent}
+                </div>
+                <div class="value">
+                    <div class="label">Project Title:</div>
+                    ${document.getElementById('modalCertProjectTitle').textContent}
+                </div>
+                <div class="value">
+                    <div class="label">Verification Hash:</div>
+                    ${document.getElementById('modalVerificationHash').textContent}
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>Verification Links</h2>
+                <div class="value">
+                    <div class="label">Verification URL:</div>
+                    ${document.getElementById('modalVerificationUrl').textContent}
+                </div>
+            </div>
+            
+            <div class="qr-code">
+                <img src="${document.getElementById('modalQrCodeUrl').textContent}" alt="QR Code" style="width: 200px; height: 200px;">
+                <p>Scan this QR code to verify the certificate</p>
+            </div>
+            
+            <div class="section no-print">
+                <p><em>Printed on ${new Date().toLocaleString()}</em></p>
+            </div>
+        </body>
+        </html>
+    `;
+    
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    printWindow.print();
+}
+
+// Search and filter for certificates
+document.getElementById('certificateSearch').addEventListener('input', function() {
+    filterCertificates();
+});
+
+document.getElementById('certificateStatusFilter').addEventListener('change', function() {
+    filterCertificates();
+});
+
+function filterCertificates() {
+    const searchTerm = document.getElementById('certificateSearch').value.toLowerCase();
+    const statusFilter = document.getElementById('certificateStatusFilter').value;
+    
+    let filtered = certificates;
+    
+    // Apply search filter
+    if (searchTerm) {
+        filtered = filtered.filter(cert => 
+            cert.studentName.toLowerCase().includes(searchTerm) ||
+            cert.studentEmail.toLowerCase().includes(searchTerm) ||
+            cert.certificateId.toLowerCase().includes(searchTerm) ||
+            cert.projectTitle.toLowerCase().includes(searchTerm) ||
+            cert.verificationHash.toLowerCase().includes(searchTerm)
+        );
+    }
+    
+    // Apply status filter
+    if (statusFilter) {
+        filtered = filtered.filter(cert => {
+            if (statusFilter === 'active') {
+                return !cert.isRevoked && (!cert.expiryDate || new Date() <= new Date(cert.expiryDate));
+            } else if (statusFilter === 'revoked') {
+                return cert.isRevoked;
+            } else if (statusFilter === 'expired') {
+                return !cert.isRevoked && cert.expiryDate && new Date() > new Date(cert.expiryDate);
+            }
+            return true;
+        });
+    }
+    
+    // Display filtered results
+    displayFilteredCertificates(filtered);
+}
+
+function displayFilteredCertificates(filteredCertificates) {
+    const tableBody = document.getElementById('certificatesTable');
+    const emptyState = document.getElementById('certificatesEmpty');
+    
+    if (filteredCertificates.length === 0) {
+        tableBody.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+    }
+    
+    emptyState.classList.add('hidden');
+    
+    const baseUrl = window.location.origin;
+    
+    tableBody.innerHTML = filteredCertificates.map(certificate => {
+        const verificationUrl = `${baseUrl}/verify/${certificate.verificationHash}`;
+        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(verificationUrl)}`;
+        
+        let status = 'active';
+        let statusColor = 'bg-green-100 text-green-800';
+        let statusText = 'Active';
+        
+        if (certificate.isRevoked) {
+            status = 'revoked';
+            statusColor = 'bg-red-100 text-red-800';
+            statusText = 'Revoked';
+        } else if (certificate.expiryDate && new Date() > new Date(certificate.expiryDate)) {
+            status = 'expired';
+            statusColor = 'bg-yellow-100 text-yellow-800';
+            statusText = 'Expired';
+        }
+        
+        return `
+            <tr class="hover:bg-gray-50 transition-colors duration-150">
+                <td class="px-6 py-4">
+                    <div class="text-sm font-medium text-gray-900">${certificate.studentName}</div>
+                    <div class="text-sm text-gray-500">${certificate.studentEmail}</div>
+                </td>
+                <td class="px-6 py-4">
+                    <div class="text-sm font-semibold text-dark-blue mb-1">${certificate.projectTitle}</div>
+                    <div class="text-xs text-gray-500">
+                        <div class="font-mono">ID: ${certificate.certificateId}</div>
+                        <div>Issued: ${new Date(certificate.issuedDate).toLocaleDateString()}</div>
+                    </div>
+                </td>
+                <td class="px-6 py-4">
+                    <div class="space-y-2">
+                        <div>
+                            <div class="text-xs font-medium text-gray-500 mb-1">Verification URL:</div>
+                            <a href="${verificationUrl}" target="_blank" 
+                                class="text-sm text-accent hover:underline break-all block">
+                                ${verificationUrl}
+                            </a>
+                        </div>
+                        <div>
+                            <div class="text-xs font-medium text-gray-500 mb-1">QR Code:</div>
+                            <img src="${qrCodeUrl}" alt="QR Code" 
+                                class="w-24 h-24 border rounded-lg p-1 bg-white">
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColor}">
+                        <i class="fas ${status === 'active' ? 'fa-check-circle' : status === 'revoked' ? 'fa-ban' : 'fa-clock'} mr-1"></i>
+                        ${statusText}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    ${new Date(certificate.issuedDate).toLocaleDateString()}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div class="flex flex-col gap-1">
+                        <button onclick="openCertificateModal('${certificate._id}')"
+                            class="text-blue-600 hover:text-blue-800 transition-colors duration-200 flex items-center gap-1 text-xs">
+                            <i class="fas fa-eye"></i>
+                            View
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// Export certificates to CSV
+function exportCertificatesCSV() {
+    if (certificates.length === 0) {
+        alert('No certificate data to export');
+        return;
+    }
+
+    const baseUrl = window.location.origin;
+    
+    const headers = [
+        'Student Name', 'Student Email', 'Project Title', 'Certificate ID',
+        'Verification Hash', 'Verification URL', 'QR Code URL',
+        'Status', 'Issued Date', 'Expiry Date', 'Revoked', 'Revoked Reason'
+    ];
+    
+    const csvData = certificates.map(cert => {
+        const verificationUrl = `${baseUrl}/verify/${cert.verificationHash}`;
+        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(verificationUrl)}`;
+        
+        let status = 'Active';
+        if (cert.isRevoked) {
+            status = 'Revoked';
+        } else if (cert.expiryDate && new Date() > new Date(cert.expiryDate)) {
+            status = 'Expired';
+        }
+        
+        return [
+            cert.studentName,
+            cert.studentEmail,
+            cert.projectTitle,
+            cert.certificateId,
+            cert.verificationHash,
+            verificationUrl,
+            qrCodeUrl,
+            status,
+            new Date(cert.issuedDate).toLocaleString(),
+            cert.expiryDate ? new Date(cert.expiryDate).toLocaleString() : 'No expiry',
+            cert.isRevoked ? 'Yes' : 'No',
+            cert.revokedReason || ''
+        ];
+    });
+
+    const csvContent = [headers, ...csvData]
+        .map(row => row.map(field => `"${field ? String(field).replace(/"/g, '""') : ''}"`).join(','))
+        .join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `promaths-certificates-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
 }
     </script>
 </body>

@@ -235,6 +235,453 @@ const surveySchema = new mongoose.Schema({
 surveySchema.index({ studentEmail: 1, submissionDate: -1 });
 
 const Survey = mongoose.model('Survey', surveySchema);
+
+
+// Certificate Verification Schema
+const certificateSchema = new mongoose.Schema({
+    studentName: { 
+        type: String, 
+        required: true,
+        trim: true 
+    },
+    studentEmail: { 
+        type: String, 
+        required: true,
+        trim: true,
+        lowercase: true,
+        index: true
+    },
+    projectTitle: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    verificationHash: {
+        type: String,
+        required: true,
+        unique: true,
+        index: true
+    },
+    certificateId: {
+        type: String,
+        required: true,
+        unique: true,
+        index: true
+    },
+    issuedDate: {
+        type: Date,
+        default: Date.now
+    },
+    expiryDate: {
+        type: Date,
+        // Optional: Certificates could expire after a certain period
+        default: null
+    },
+    isRevoked: {
+        type: Boolean,
+        default: false
+    },
+    revokedReason: {
+        type: String,
+        default: null
+    },
+    metadata: {
+        type: Object,
+        default: {}
+    }
+}, {
+    timestamps: true
+});
+
+// Create indexes for efficient queries
+certificateSchema.index({ verificationHash: 1, isRevoked: 1 });
+certificateSchema.index({ studentEmail: 1, issuedDate: -1 });
+
+const Certificate = mongoose.model('Certificate', certificateSchema);
+
+
+// Helper function to generate verification hash
+const crypto = require('crypto');
+
+function generateVerificationHash(studentEmail, projectTitle) {
+    const data = `${studentEmail}-${projectTitle}-${Date.now()}`;
+    return crypto.createHash('sha256')
+        .update(data)
+        .digest('hex')  // Changed from .toString('hex') to .digest('hex')
+        .substring(0, 16);
+}
+
+function generateCertificateId() {
+    // Format: CERT-YYYY-MM-XXXXXX
+    const timestamp = Date.now().toString(36);
+    const random = Math.random().toString(36).substring(2, 8);
+    return `CERT-${new Date().toISOString().slice(0, 7).replace('-', '')}-${random.toUpperCase()}`;
+}
+
+
+// Generate certificate for approved project
+app.post('/api/certificates/generate', async (req, res) => {
+    try {
+        const { projectSubmissionId } = req.body;
+        
+        if (!projectSubmissionId) {
+            return res.status(400).json({
+                success: false,
+                message: 'Project submission ID is required'
+            });
+        }
+
+        // Find the project submission
+        const submission = await ProjectSubmission.findById(projectSubmissionId);
+        
+        if (!submission) {
+            return res.status(404).json({
+                success: false,
+                message: 'Project submission not found'
+            });
+        }
+
+        // Check if project is approved
+        if (submission.status !== 'approved') {
+            return res.status(400).json({
+                success: false,
+                message: 'Certificate can only be generated for approved projects'
+            });
+        }
+
+        // Check if certificate already exists
+        const existingCertificate = await Certificate.findOne({
+            studentEmail: submission.studentEmail,
+            projectTitle: submission.projectTitle
+        });
+
+        if (existingCertificate) {
+            return res.json({
+                success: true,
+                message: 'Certificate already exists',
+                data: existingCertificate,
+                certificateUrl: `${req.protocol}://${req.get('host')}/verify/${existingCertificate.verificationHash}`
+            });
+        }
+
+        // Generate new certificate
+        const verificationHash = generateVerificationHash(submission.studentEmail, submission.projectTitle);
+        const certificateId = generateCertificateId();
+
+        const certificate = new Certificate({
+            studentName: submission.studentName,
+            studentEmail: submission.studentEmail,
+            projectTitle: submission.projectTitle,
+            verificationHash: verificationHash,
+            certificateId: certificateId,
+            metadata: {
+                projectSubmissionId: submission._id,
+                githubRepo: submission.githubRepo,
+                hostedSite: submission.hostedSite,
+                submissionDate: submission.submittedAt
+            }
+        });
+
+        await certificate.save();
+
+        // Construct verification URL
+        const verificationUrl = `${req.protocol}://${req.get('host')}/verify/${verificationHash}`;
+
+        res.status(201).json({
+            success: true,
+            message: 'Certificate generated successfully',
+            data: certificate,
+            verificationUrl: verificationUrl,
+            qrCodeData: verificationUrl // This can be used to generate QR code
+        });
+
+    } catch (error) {
+        console.error('Certificate generation error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to generate certificate',
+            error: error.message
+        });
+    }
+});
+
+
+// Public certificate verification endpoint
+app.get('/api/verify/:hash', async (req, res) => {
+    try {
+        const { hash } = req.params;
+        
+        if (!hash || hash.length !== 16) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid verification code'
+            });
+        }
+
+        // Find certificate by hash
+        const certificate = await Certificate.findOne({ 
+            verificationHash: hash 
+        });
+
+        if (!certificate) {
+            return res.status(404).json({
+                success: false,
+                verified: false,
+                message: 'Certificate not found. This may be an invalid or revoked certificate.',
+                verificationDate: new Date().toISOString()
+            });
+        }
+
+        // Check if certificate is revoked
+        if (certificate.isRevoked) {
+            return res.json({
+                success: true,
+                verified: false,
+                message: 'Certificate has been revoked',
+                revokeReason: certificate.revokedReason,
+                verificationDate: new Date().toISOString()
+            });
+        }
+
+        // Check if certificate has expired
+        if (certificate.expiryDate && new Date() > certificate.expiryDate) {
+            return res.json({
+                success: true,
+                verified: false,
+                message: 'Certificate has expired',
+                verificationDate: new Date().toISOString()
+            });
+        }
+
+        // Certificate is valid
+        res.json({
+            success: true,
+            verified: true,
+            message: 'Certificate verified successfully',
+            certificateId: certificate.certificateId,
+            studentName: certificate.studentName,
+            projectTitle: certificate.projectTitle,
+            issuedDate: certificate.issuedDate,
+            expiryDate: certificate.expiryDate,
+            verificationDate: new Date().toISOString(),
+            verificationUrl: `${req.protocol}://${req.get('host')}/verify/${hash}`
+        });
+
+    } catch (error) {
+        console.error('Verification error:', error);
+        res.status(500).json({
+            success: false,
+            verified: false,
+            message: 'Verification failed',
+            error: error.message,
+            verificationDate: new Date().toISOString()
+        });
+    }
+});
+
+
+// Admin: Get all certificates
+app.get('/api/admin/certificates', async (req, res) => {
+    try {
+        const { 
+            studentEmail, 
+            status,
+            startDate, 
+            endDate,
+            page = 1,
+            limit = 50
+        } = req.query;
+
+        let query = {};
+        
+        // Filter by student email
+        if (studentEmail) {
+            query.studentEmail = studentEmail.toLowerCase();
+        }
+
+        // Filter by status
+        if (status === 'active') {
+            query.isRevoked = false;
+        } else if (status === 'revoked') {
+            query.isRevoked = true;
+        }
+
+        // Filter by date range
+        if (startDate || endDate) {
+            query.issuedDate = {};
+            if (startDate) {
+                query.issuedDate.$gte = new Date(startDate);
+            }
+            if (endDate) {
+                query.issuedDate.$lte = new Date(endDate);
+            }
+        }
+
+        const pageNum = parseInt(page);
+        const limitNum = parseInt(limit);
+        const skip = (pageNum - 1) * limitNum;
+
+        const [certificates, total] = await Promise.all([
+            Certificate.find(query)
+                .sort({ issuedDate: -1 })
+                .skip(skip)
+                .limit(limitNum),
+            Certificate.countDocuments(query)
+        ]);
+
+        res.json({
+            success: true,
+            data: certificates,
+            pagination: {
+                page: pageNum,
+                limit: limitNum,
+                total,
+                pages: Math.ceil(total / limitNum)
+            }
+        });
+
+    } catch (error) {
+        console.error('Error fetching certificates:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch certificates',
+            error: error.message
+        });
+    }
+});
+
+// Admin: Revoke certificate
+app.put('/api/admin/certificates/:id/revoke', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { reason } = req.body;
+
+        const certificate = await Certificate.findById(id);
+        
+        if (!certificate) {
+            return res.status(404).json({
+                success: false,
+                message: 'Certificate not found'
+            });
+        }
+
+        certificate.isRevoked = true;
+        certificate.revokedReason = reason || 'Revoked by administrator';
+        
+        await certificate.save();
+
+        res.json({
+            success: true,
+            message: 'Certificate revoked successfully',
+            data: certificate
+        });
+
+    } catch (error) {
+        console.error('Certificate revocation error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to revoke certificate',
+            error: error.message
+        });
+    }
+});
+
+// Admin: Reinstate revoked certificate
+app.put('/api/admin/certificates/:id/reinstate', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const certificate = await Certificate.findById(id);
+        
+        if (!certificate) {
+            return res.status(404).json({
+                success: false,
+                message: 'Certificate not found'
+            });
+        }
+
+        certificate.isRevoked = false;
+        certificate.revokedReason = null;
+        
+        await certificate.save();
+
+        res.json({
+            success: true,
+            message: 'Certificate reinstated successfully',
+            data: certificate
+        });
+
+    } catch (error) {
+        console.error('Certificate reinstatement error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to reinstate certificate',
+            error: error.message
+        });
+    }
+});
+
+// Admin: Get certificate by ID
+app.get('/api/admin/certificates/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const certificate = await Certificate.findById(id);
+        
+        if (!certificate) {
+            return res.status(404).json({
+                success: false,
+                message: 'Certificate not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            data: certificate
+        });
+
+    } catch (error) {
+        console.error('Error fetching certificate:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch certificate',
+            error: error.message
+        });
+    }
+});
+
+// Get student's certificates
+app.get('/api/user/certificates/:email', async (req, res) => {
+    try {
+        const { email } = req.params;
+        
+        const certificates = await Certificate.find({ 
+            studentEmail: email.toLowerCase(),
+            isRevoked: false
+        }).sort({ issuedDate: -1 });
+
+        // Add verification URLs
+        const certificatesWithUrls = certificates.map(cert => ({
+            ...cert.toObject(),
+            verificationUrl: `${req.protocol}://${req.get('host')}/verify/${cert.verificationHash}`
+        }));
+
+        res.json({
+            success: true,
+            data: certificatesWithUrls
+        });
+
+    } catch (error) {
+        console.error('Error fetching user certificates:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch certificates',
+            error: error.message
+        });
+    }
+});
+
+
 // Survey Endpoints
 app.post('/api/surveys', async (req, res) => {
     try {
@@ -1261,6 +1708,40 @@ app.put('/api/admin/project-submissions/:id', async (req, res) => {
 
         const updatedSubmission = await submission.save();
 
+        // In your Project Submission update endpoint (/api/admin/project-submissions/:id)
+        // Add this after updating the submission:
+
+        if (status === 'approved') {
+            // Check if certificate already exists
+            const existingCert = await Certificate.findOne({
+                studentEmail: submission.studentEmail,
+                projectTitle: submission.projectTitle
+            });
+
+            if (!existingCert) {
+                // Generate certificate automatically
+                const verificationHash = generateVerificationHash(submission.studentEmail, submission.projectTitle);
+                const certificateId = generateCertificateId();
+
+                const certificate = new Certificate({
+                    studentName: submission.studentName,
+                    studentEmail: submission.studentEmail,
+                    projectTitle: submission.projectTitle,
+                    verificationHash: verificationHash,
+                    certificateId: certificateId,
+                    metadata: {
+                        projectSubmissionId: submission._id,
+                        githubRepo: submission.githubRepo,
+                        hostedSite: submission.hostedSite,
+                        submissionDate: submission.submittedAt
+                    }
+                });
+
+                await certificate.save();
+                console.log(`Auto-generated certificate for ${submission.studentEmail}`);
+            }
+        }
+
         res.json({
             success: true,
             message: 'Submission updated successfully',
@@ -1312,7 +1793,156 @@ async function cleanupSubmissions() {
 cleanupSubmissions();
 
 
+// Public verification page (for QR codes)
+app.get('/verify/:hash', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'verify.html'));
+});
 
+
+
+// One-time function to generate certificates for existing approved projects
+// One-time function to generate certificates for existing approved projects
+async function generateCertificatesForExistingApprovedProjects() {
+    try {
+        console.log('Starting certificate generation for existing approved projects...');
+        
+        // First, let's check the hash function
+        console.log('\nTesting hash generation function:');
+        const testHash = generateVerificationHash('test@test.com', 'Test Project');
+        console.log('Test hash:', testHash);
+        console.log('Type:', typeof testHash);
+        console.log('Length:', testHash ? testHash.length : 'null');
+        
+        // Find all approved projects that don't have certificates
+        const approvedProjects = await ProjectSubmission.find({ 
+            status: 'approved' 
+        });
+
+        console.log(`\nFound ${approvedProjects.length} approved projects`);
+        
+        let createdCount = 0;
+        let skippedCount = 0;
+        let errorCount = 0;
+
+        for (const project of approvedProjects) {
+            console.log(`\nProcessing: ${project.studentEmail} - "${project.projectTitle}"`);
+            
+            // Check if certificate already exists
+            const existingCert = await Certificate.findOne({
+                studentEmail: project.studentEmail,
+                projectTitle: project.projectTitle
+            });
+
+            if (existingCert) {
+                skippedCount++;
+                console.log(`✓ Certificate already exists`);
+                continue;
+            }
+
+            try {
+                // Generate new certificate with proper debugging
+                console.log('Generating hash...');
+                const verificationHash = generateVerificationHash(project.studentEmail, project.projectTitle);
+                console.log('Generated hash:', verificationHash);
+                console.log('Hash type:', typeof verificationHash);
+                console.log('Hash length:', verificationHash.length);
+                
+                if (!verificationHash || typeof verificationHash !== 'string') {
+                    throw new Error(`Invalid hash generated: ${verificationHash}`);
+                }
+                
+                const certificateId = generateCertificateId();
+                console.log('Certificate ID:', certificateId);
+
+                const certificate = new Certificate({
+                    studentName: project.studentName,
+                    studentEmail: project.studentEmail,
+                    projectTitle: project.projectTitle,
+                    verificationHash: verificationHash,
+                    certificateId: certificateId,
+                    metadata: {
+                        projectSubmissionId: project._id,
+                        githubRepo: project.githubRepo,
+                        hostedSite: project.hostedSite,
+                        submissionDate: project.submittedAt,
+                        migrated: true,
+                        migrationDate: new Date()
+                    }
+                });
+
+                console.log('Saving certificate...');
+                await certificate.save();
+                createdCount++;
+                
+                const verificationUrl = `http://localhost:${PORT}/verify/${verificationHash}`;
+                console.log(`✅ SUCCESS: Created certificate`);
+                console.log(`   Certificate ID: ${certificateId}`);
+                console.log(`   Verification URL: ${verificationUrl}`);
+
+            } catch (error) {
+                errorCount++;
+                console.error(`❌ ERROR: ${error.message}`);
+                if (error.code === 11000) {
+                    console.error('   Duplicate key error - hash already exists in database');
+                }
+            }
+        }
+
+        console.log('\n' + '='.repeat(50));
+        console.log('CERTIFICATE GENERATION SUMMARY');
+        console.log('='.repeat(50));
+        console.log(`Total approved projects: ${approvedProjects.length}`);
+        console.log(`New certificates created: ${createdCount}`);
+        console.log(`Already had certificates: ${skippedCount}`);
+        console.log(`Errors: ${errorCount}`);
+        console.log('='.repeat(50));
+
+    } catch (error) {
+        console.error('Fatal error in certificate generation:', error);
+    }
+}
+
+generateCertificatesForExistingApprovedProjects();
+
+// Function to delete all certificates (use with caution)
+async function deleteAllCertificates() {
+    try {
+        console.log('⚠️ WARNING: Deleting ALL certificates...');
+        
+        // Count before deletion
+        const count = await Certificate.countDocuments();
+        console.log(`Found ${count} certificates to delete`);
+        
+        if (count === 0) {
+            console.log('No certificates found to delete');
+            return;
+        }
+        
+        // Confirm deletion (in production, you might want more safety)
+        if (process.env.NODE_ENV === 'production') {
+            console.log('❌ Cannot run deleteAllCertificates in production without confirmation');
+            console.log('To proceed, uncomment the deletion code and restart');
+            return;
+        }
+        
+        // Uncomment the next line to actually delete
+        // const result = await Certificate.deleteMany({});
+        // console.log(`✅ Successfully deleted ${result.deletedCount} certificates`);
+        
+        // For safety, just log what would be deleted
+        const certificates = await Certificate.find({}, 'studentName studentEmail certificateId');
+        console.log('\n📋 Certificates that would be deleted:');
+        certificates.forEach((cert, index) => {
+            console.log(`${index + 1}. ${cert.studentName} (${cert.studentEmail}) - ${cert.certificateId}`);
+        });
+        
+    } catch (error) {
+        console.error('❌ Error deleting certificates:', error);
+    }
+}
+
+// Call this function once (then remove or comment out)
+// deleteAllCertificates();
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
